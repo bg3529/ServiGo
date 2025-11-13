@@ -5,7 +5,7 @@
 ### Nawaraj Pathak           https://github.com/navraj11-ku
 ### Sudip Bayalkoti          https://github.com/Sudiip49
 ### Vipraja Dahal            https://github.com/viprajadahal
-
+### Bandana Gyawali 	     https://github.com/bg3529
 _______________________________________________________________________________________________________________________________________
 A web platform to connects users with service providers such as plumbers, electricians, tutors, and more. 
 Allows users to search by category or location, view ratings and reviews, and make service bookings directly through the platform. 
