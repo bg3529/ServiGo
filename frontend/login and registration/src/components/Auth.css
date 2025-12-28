@@ -1,0 +1,117 @@
+/* Full page green background */
+.app-container {
+  min-height: 100vh;
+  background-color: #e8f5e9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  position: relative;
+}
+
+/* Navigation buttons */
+.nav-bar {
+  position: absolute;
+  top: 20px;
+  left: 40%;
+  transform: translateX(-40) ;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.nav-bar a {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.nav-bar a:hover {
+  background-color: #388e3c;
+}
+
+/* Split layout */
+.auth-layout {
+  display: flex;
+  width: 800px;
+  height: 500px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Left form section */
+.auth-form {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #2e7d32;
+  font-size: 1.8rem;
+}
+
+.auth-form input {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.auth-form button {
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.auth-form button:hover {
+  background-color: #388e3c;
+}
+
+.auth-image-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #c8e6c9; /* fallback color */
+  padding: 20px;
+}
+
+/* The actual image */
+.auth-image-section img {
+  max-width: 80%;   /* keeps it smaller than the box */
+  max-height: 80%;  /* prevents it from stretching vertically */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-layout {
+    flex-direction: column;
+    width: 90%;
+    height: auto;
+  }
+
+  .auth-image-section {
+    height: 200px;
+  }
+}
