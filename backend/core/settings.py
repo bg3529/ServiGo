@@ -90,9 +90,9 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES ={
     'default':{
         "ENGINE":"django.db.backends.postgresql",
-        "NAME":"postgre-database", # this name refers to the databse theat django will connect to and is the actual databse that contains the tables and data
-        "USER":"database-user", # -U database-user
-        "PASSWORD":"vbnfgh90_dfg",
+        "NAME":"test2", # this name refers to the databse theat django will connect to and is the actual databse that contains the tables and data
+        "USER":"derek", # -U database-user
+        "PASSWORD":"test2",
         "HOST":"localhost",
         "PORT":"5432", # default port for postgresql
     }

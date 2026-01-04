@@ -25,4 +25,4 @@ urlpatterns = [
 
 # test creds
 # mail : derekredblack@gmail.com
-# paswd : admin1234
+# paswd : admin123
