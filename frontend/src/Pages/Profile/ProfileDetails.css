@@ -1,0 +1,145 @@
+/* Layout Container */
+.profile-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+/* --- Left Panel Styling --- */
+.avatar-upload-container {
+    width: 90px;
+    height: 90px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-upload-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.avatar-upload-container:hover .camera-overlay {
+    opacity: 1;
+}
+
+.user-header-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.user-text-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    color: #111827;
+}
+
+.user-text-info p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+
+
+
+/* --- Right Panel Styling --- */
+.details-main-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 25px;
+}
+
+.detail-row {
+    margin-bottom: 20px;
+}
+
+.detail-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 8px;
+}
+
+.detail-input-box {
+    background: #f3f4f6;
+    border: 1.5px solid transparent;
+    padding: 14px 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.detail-input-box:focus-within {
+    background: white;
+    border-color: #10b981; 
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.detail-input-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    color: #111827;
+}
+
+.detail-input-box span {
+    font-size: 15px;
+    color: #374151;
+}
+
+/* Icons */
+.edit-pencil {
+    color: #ff5a1f;
+    cursor: pointer;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.save-icon { color: #10b981; cursor: pointer; }
+.cancel-icon { color: #ef4444; cursor: pointer; }
+
+/* Responsive */
+@media (max-width: 850px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+}

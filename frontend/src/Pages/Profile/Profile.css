@@ -1,0 +1,66 @@
+.profile-page-container {
+    padding: 40px 20px;
+    background-color: #ffffff;
+    min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Provider Toggle Banner */
+.register-provider-footer {
+    margin-top: 50px;
+    cursor: pointer;
+}
+
+.provider-promo {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 20px;
+    border: 1px solid #bbf7d0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.provider-promo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15);
+    border-color: #86efac;
+}
+
+/* Adding a subtle glow effect on hover */
+.provider-promo::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: 0.5s;
+}
+
+.provider-promo:hover::after {
+    left: 100%;
+}
+
+.promo-content h4 {
+    margin: 0;
+    color: #064e3b;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.promo-content p {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: #065f46;
+    opacity: 0.9;
+}

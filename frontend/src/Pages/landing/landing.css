@@ -1,0 +1,48 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.landing-container {
+  height: 100vh;
+  width: 100%;
+  background-color: #41b3e6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  width: 280px;
+  margin-bottom: 40px;
+}
+
+.button-group {
+  display: flex;
+  gap: 20px;
+}
+
+.btn {
+  padding: 14px 36px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+}
+
+.login {
+  background-color: #7ee0a1;
+}
+
+.signup {
+  background-color: #7ee0a1;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
