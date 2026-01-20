@@ -196,4 +196,16 @@ SIMPLE_JWT = {
     "CHECK_USER_IS_ACTIVE": True,
 }
 
+CORS_ALLOWED_ORIGINS = [
+    # "http://localhost:3000",
+    "http://127.0.0.1:5673",
+    # Add frontend URLs
+]
+# CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+# Add media settings for service images
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
