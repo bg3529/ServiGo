@@ -29,7 +29,7 @@ export default function Navbar() {
             <span>My Profile</span>
           </Link>
 
-          <Link to="/bookings" className="nav-item">
+          <Link to="/my-bookings" className="nav-item">
             <Calendar size={20} />
             <span>My Bookings</span>
           </Link>

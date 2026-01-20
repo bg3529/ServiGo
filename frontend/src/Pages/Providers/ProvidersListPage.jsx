@@ -72,7 +72,7 @@ export default function ProviderListPage({ onAddBooking }) {
         <BookingModal 
           provider={selectedProvider} 
           onClose={() => setIsModalOpen(false)} 
-          onAddBooking={onAddBooking}
+          onConfirmBooking={onAddBooking}
         />
       )}
     </div>

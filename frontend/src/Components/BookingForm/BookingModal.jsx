@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './BookingModal.css';
 
-export default function BookingModal({ provider, onClose }) {
+export default function BookingModal({ provider, onClose, onConfirmBooking }) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
     date: '',
@@ -15,12 +15,22 @@ export default function BookingModal({ provider, onClose }) {
 
   const handleConfirm = (e) => {
     e.preventDefault();
-    
     if (!formData.date || !formData.time) {
-      alert("Please select both a date and a time slot.");
+      alert("Please select both a date and a preferred time.");
       return;
     }
 
+    const newBooking = {
+      id: Date.now(),
+      providerName: provider.name,
+      serviceType: provider.subCategoryName,
+      price: provider.price,
+      date: formData.date,
+      time: formData.time,
+      status: 'Confirmed'
+    };
+
+    onConfirmBooking(newBooking);
     setIsSuccess(true);
     setTimeout(() => onClose(), 2500);
   };
@@ -63,19 +73,14 @@ export default function BookingModal({ provider, onClose }) {
               </div>
 
               <div className="form-group">
-                <label>Time Slot</label>
-                <select 
-                  name="time" 
+                <label>Preferred Time</label>
+                <input 
+                  type="time" 
+                  name="time"
                   value={formData.time}
                   onChange={handleChange}
-                  required
-                >
-                  <option value="">Select a time</option>
-                  <option value="09:00 AM">09:00 AM</option>
-                  <option value="12:00 PM">12:00 PM</option>
-                  <option value="03:00 PM">03:00 PM</option>
-                  <option value="06:00 PM">06:00 PM</option>
-                </select>
+                  required 
+                />
               </div>
 
               <div className="form-group">
@@ -84,7 +89,7 @@ export default function BookingModal({ provider, onClose }) {
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Any specific details for the professional..."
+                  placeholder="Any specific details..."
                   rows="3"
                 ></textarea>
               </div>
@@ -100,12 +105,7 @@ export default function BookingModal({ provider, onClose }) {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className={`confirm-btn ${(!formData.date || !formData.time) ? 'disabled' : ''}`}
-              >
-                Confirm Booking
-              </button>
+              <button type="submit" className="confirm-btn">Confirm Booking</button>
             </form>
           </>
         )}

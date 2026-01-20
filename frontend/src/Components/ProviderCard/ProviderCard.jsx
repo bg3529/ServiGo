@@ -22,7 +22,7 @@ export default function ProviderCard({ provider, onBook }) {
         <div className="pro-footer-v">
           <div className="pro-price-v">
             <span className="price-label-v">Starting from</span>
-            <span className="price-val-v"> {provider.price}</span>
+            <span className="price-val-v">{provider.price}</span>
           </div>
           <button className="pro-btn-v">Book Now</button>
         </div>

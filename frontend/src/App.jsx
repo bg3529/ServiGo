@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Navbar from "./Components/Navbar/Navbar";
@@ -10,16 +10,25 @@ import Home from "./Pages/Home/Home";
 import Profile from "./Pages/Profile/Profile"; 
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
-import BookingModal from "./Components/BookingForm/BookingModal";
+import MyBookings from "./Pages/MyBookings/MyBookings";
 import "./App.css";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState(null); // State to store logged-in user
+  const [currentUser, setCurrentUser] = useState(null);
+  
+  const [bookings, setBookings] = useState(() => {
+    const savedBookings = localStorage.getItem("userBookings");
+    return savedBookings ? JSON.parse(savedBookings) : [];
+  });
+  
+  useEffect(() => {
+    localStorage.setItem("userBookings", JSON.stringify(bookings));
+  }, [bookings]);
+
   const location = useLocation();
   const authPaths = ["/login", "/register", "/forgot-password", "/"];
   const isAuthPage = authPaths.includes(location.pathname);
 
-  // Function to be called from LoginForm upon successful authentication
   const handleLogin = (user) => {
     setCurrentUser(user);
   };
@@ -28,9 +37,16 @@ function App() {
     setCurrentUser(null);
   };
 
+  const addBooking = (newBooking) => {
+    setBookings((prev) => [newBooking, ...prev]);
+  };
+
+  const cancelBooking = (id) => {
+    setBookings((prev) => prev.filter(booking => booking.id !== id));
+  };
+
   return (
     <div className="app-wrapper">
-      {/* Pass currentUser to Navbar to show name/avatar */}
       {!isAuthPage && <Navbar currentUser={currentUser} onLogout={handleLogout} />}
 
       <main className="main-content">
@@ -38,7 +54,6 @@ function App() {
           <Route path="/" element={<Navigate to="/register" />} />
           <Route path="/register" element={<RegisterForm />} />
           
-          {/* Pass handleLogin to LoginForm */}
           <Route 
             path="/login" 
             element={<LoginForm onLoginSuccess={handleLogin} />} 
@@ -46,23 +61,31 @@ function App() {
           
           <Route path="/forgot-password" element={<ForgotPassword />} />
           
-          {/* Dashboard: Pass currentUser to Home */}
           <Route 
             path="/home" 
-            element={currentUser ? <Home currentUser={currentUser} /> 
-            : <Navigate to="/login" />} 
+            element={currentUser ? <Home currentUser={currentUser} /> : <Navigate to="/login" />} 
           />
 
-          {/* Profile: Pass currentUser to show details like Bandana Gyawali */}
           <Route 
             path="/profile" 
-            element={currentUser ? <Profile currentUser={currentUser} /> :
-             <Navigate to="/login" />} 
+            element={currentUser ? <Profile currentUser={currentUser} /> : <Navigate to="/login" />} 
+          />
+
+          <Route 
+            path="/my-bookings" 
+            element={currentUser ? (
+              <MyBookings bookings={bookings} onCancel={cancelBooking} />
+            ) : (
+              <Navigate to="/login" />
+            )} 
           />
 
           <Route path="/services/:id" element={<SubCategoryPage />} />
-          <Route path="/providers/:subId" element={<ProviderListPage />} />
-          <Route path="/book/:providerId" element={<BookingModal />} />
+          
+          <Route 
+            path="/providers/:subId" 
+            element={<ProviderListPage onAddBooking={addBooking} />} 
+          />
         </Routes>
       </main>
 

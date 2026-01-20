@@ -41,7 +41,7 @@
     margin-top: 5px;
 }
 
-/* Color Classes used in CategoriesData.js */
+.bg-red-100 { background-color: #fee2e2; }
 .bg-blue-100 { background-color: #dbeafe; }
 .bg-purple-100 { background-color: #f3e8ff; }
 .bg-pink-100 { background-color: #fce7f3; }
