@@ -1,0 +1,94 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base */
+body {
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #2d9cdb, #56ccf2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Main Container */
+.container {
+    text-align: center;
+    color: #ffffff;
+}
+
+/* Logo */
+.logo-wrapper {
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 600px;
+    height: auto;
+}
+
+/* Title */
+.title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+.btn {
+    text-decoration: none;
+    padding: 14px 36px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+/* Log In Button */
+.btn-login {
+    background-color: #6fcf97;
+    color: #ffffff;
+}
+
+.btn-login:hover {
+    background-color: #57b883;
+    transform: translateY(-2px);
+}
+
+/* Sign Up Button */
+.btn-signup {
+    background-color: #6fcf97;
+    color: #ffffff;
+}
+
+.btn-signup:hover {
+    background-color: #57b883;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .title {
+        font-size: 36px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .btn {
+        width: 200px;
+        margin: 0 auto;
+    }
+}

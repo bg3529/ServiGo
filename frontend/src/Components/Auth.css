@@ -1,0 +1,116 @@
+
+.app-container {
+  min-height: 100vh;
+  background: #e8f5e9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  position: relative;
+}
+
+/* Navigation bar */
+.nav-bar {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+}
+
+.nav-bar a {
+  background: #4caf50;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-bar a:hover {
+  background: #388e3c;
+}
+
+/* For forgot password link */
+a {
+  color: blue;
+  text-decoration: none;
+  text-align: end;
+}
+
+/* For auth layout */
+.auth-layout {
+  display: flex;
+  width: 800px;
+  height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* Form section */
+.auth-form {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-form h2 {
+  text-align: center;
+  color: #2e7d32;
+  margin-bottom: 25px;
+}
+
+.auth-form input {
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.auth-form button {
+  margin-top: 20px;
+  padding: 12px;
+  background: #279027;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.auth-form button:hover {
+  background: #1a741a;
+}
+
+/* Servigo Logo section */
+.auth-image-section {
+  flex: 1;
+  background: #c8e6c9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-image-section img {
+  max-width: 80%;
+  max-height: 80%;
+  border-radius: 12px;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-layout {
+    flex-direction: column;
+    width: 90%;
+    height: auto;
+  }
+
+  .auth-image-section {
+    height: 200px;
+  }
+}
