@@ -7,11 +7,7 @@ import LoginForm from "./Components/LoginForm";
 import RegisterForm from "./Components/RegisterForm";
 import ForgotPassword from "./Components/forgotpassword";
 import Home from "./Pages/Home/Home";
-
 import Profile from "./Pages/Profile/Profile"; 
-
-
-
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
