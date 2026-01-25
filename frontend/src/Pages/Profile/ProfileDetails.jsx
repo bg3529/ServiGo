@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
-import { User, Mail, Phone, MapPin, Edit3, Plus, Camera, Check, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { User, Mail, Phone, MapPin, Edit3, Camera, Check, X, Briefcase } from "lucide-react";
 import "./ProfileDetails.css";
 
 const ProfileDetails = ({ currentUser }) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(null);
   const [profileData, setProfileData] = useState({
     name: currentUser?.name || "User Name",
@@ -67,6 +69,27 @@ const ProfileDetails = ({ currentUser }) => {
           </div>
         </div>
         
+        {/* Become Provider Button */}
+        {!currentUser?.isProvider && (
+          <button 
+            className="become-provider-btn" 
+            onClick={() => navigate('/become-provider')}
+          >
+            <Briefcase size={18} />
+            Become a Service Provider
+          </button>
+        )}
+
+        {/* Provider Dashboard Button */}
+        {currentUser?.isProvider && (
+          <button 
+            className="provider-dashboard-btn" 
+            onClick={() => navigate('/dashboard')}
+          >
+            <Briefcase size={18} />
+            Go to Provider Dashboard
+          </button>
+        )}
       </div>
 
       <div className="profile-right-panel">

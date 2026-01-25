@@ -29,7 +29,7 @@ export default function Footer() {
           <p>Address: Dhulikhel, Kavre</p>
         </div>
       </div>
-      <div className="copyright">
+      <div className="copyright"> 
         &copy; 2026 ServiGo. All rights reserved.
       </div>
     </footer>

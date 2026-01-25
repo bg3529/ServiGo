@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProviderCard from '../../Components/ProviderCard/ProviderCard';
 import './ProviderRegistration.css';
 
-const ProviderRegistration = ({ currentUser }) => {
+const ProviderRegistration = ({ currentUser, onProviderRegistration }) => {
+  const navigate = useNavigate();
+  
   const [providerCardData, setProviderCardData] = useState({
     name: currentUser?.name || "Professional Name",
     image: "https://via.placeholder.com/150",
@@ -24,6 +27,14 @@ const ProviderRegistration = ({ currentUser }) => {
     }
   };
 
+  const handleSubmit = () => {
+    // Call the function to update user as provider
+    onProviderRegistration(providerCardData);
+    
+    // Redirect to dashboard
+    navigate('/dashboard');
+  };
+
   return (
     <div className="provider-registration-container">
       <h3>Provider Registration</h3>
@@ -35,23 +46,30 @@ const ProviderRegistration = ({ currentUser }) => {
           </div>
           <div className="input-group">
             <label>Business Name</label>
-            <input type="text" name="name" onChange={handleChange} />
+            <input type="text" name="name" value={providerCardData.name} onChange={handleChange} />
           </div>
           <div className="input-row">
             <div className="input-group">
               <label>Starting Price</label>
-              <input type="text" name="price" onChange={handleChange} />
+              <input type="text" name="price" value={providerCardData.price} onChange={handleChange} />
             </div>
             <div className="input-group">
               <label>Experience</label>
-              <input type="text" name="experience" onChange={handleChange} />
+              <input type="text" name="experience" value={providerCardData.experience} onChange={handleChange} />
             </div>
           </div>
           <div className="input-group">
             <label>Description</label>
-            <textarea name="description" maxLength="120" onChange={handleChange}></textarea>
+            <textarea 
+              name="description" 
+              maxLength="120" 
+              value={providerCardData.description}
+              onChange={handleChange}
+            ></textarea>
           </div>
-          <button className="final-submit-btn">Apply Now</button>
+          <button className="final-submit-btn" onClick={handleSubmit}>
+            Apply Now
+          </button>
         </div>
 
         <div className="preview-side">
