@@ -1,5 +1,5 @@
 import django_filters
-from django.db.models import Q
+from django.db.models import *
 from .models import Service, ServiceCategory
 
 class ServiceFilter(django_filters.FilterSet):

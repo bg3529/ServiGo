@@ -1,3 +1,5 @@
+# request handeleres
+
 from rest_framework import viewsets, generics, permissions, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -8,6 +10,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count, Avg, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import SessionAuthentication
+
 
 from .models import (
     ServiceCategory, Service, ServiceImage,
@@ -28,9 +33,12 @@ from .serializers import (
 from .filters import ServiceFilter, ServiceSearchFilter
 
 class ServiceCategoryViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
     """
     API endpoint for service categories
     """
+    # queryset = ServiceCategory.objects.filter(is_active=True)
+    # queryset = Service.objects.all()
     queryset = ServiceCategory.objects.filter(is_active=True)
     serializer_class = ServiceCategorySerializer
     permission_classes = [AllowAny]
@@ -42,6 +50,7 @@ class ServiceCategoryViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 class ServiceViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
     """
     API endpoint for services
     """
@@ -184,6 +193,8 @@ class ServiceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class BookingViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    queryset = Booking.objects.all()
     """
     API endpoint for bookings
     """
@@ -319,9 +330,11 @@ class BookingViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
     """
     API endpoint for reviews
     """
+    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
     
@@ -335,6 +348,7 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
     """
     API endpoint for service requests
     """
+    queryset = ServiceRequest.objects.all()
     serializer_class = ServiceRequestSerializer
     permission_classes = [IsAuthenticated]
     
@@ -345,6 +359,7 @@ class ServiceRequestViewSet(viewsets.ModelViewSet):
         serializer.save(customer=self.request.user)
 
 class DashboardView(APIView):
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
     """
     API endpoint for dashboard statistics
     """

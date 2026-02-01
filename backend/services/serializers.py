@@ -1,3 +1,55 @@
+# what serializers do?
+# Django REST Framework Serializers Explained
+# 
+# Serializers convert complex data types (like Django models) into Python native data types that can be easily rendered into JSON/XML. They also do the reverse: parse incoming data and convert it back into complex types.
+# Analogy: Translator Between Two Languages
+# 
+# Think of serializers as translators:
+# 
+    # Python/Django objects ↔ JSON/XML (for APIs)
+# 
+    # Database data ↔ Web/API format
+# 
+# What Serializers Actually Do:
+# 1. Serialization (OUTGOING)
+# python
+# 
+# Python object/Django model → JSON/XML
+# Product object {
+    # id: 1,
+    # name: "Laptop",
+    # price: 999.99,
+    # created_at: datetime(2024, 1, 15)
+# }
+# 
+# ↓ Serializer converts to ↓
+# 
+# JSON {
+    # "id": 1,
+    # "name": "Laptop",
+    # "price": "999.99",
+    # "created_at": "2024-01-15T10:30:00Z"
+# }
+# 
+# 2. Deserialization (INCOMING)
+# python
+# 
+# JSON from API → Python object/Django model
+# JSON from request {
+    # "name": "Phone",
+    # "price": 599.99
+# }
+# 
+# ↓ Serializer converts to ↓
+# 
+# Python dictionary {
+    # 'name': 'Phone',
+    # 'price': Decimal('599.99')
+# }
+# 
+# Then Django can save to database
+
+
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import (
@@ -12,6 +64,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_picture']
+
+# class UserProfileSerializer(serializer.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields=['id','username','email','first_name','last_name','profile_picture']
 
 class ServiceCategorySerializer(serializers.ModelSerializer):
     class Meta:
