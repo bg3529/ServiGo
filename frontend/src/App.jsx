@@ -11,6 +11,7 @@ import Profile from "./Pages/Profile/Profile";
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
+import ServicesPage from "./Pages/Services/ServicesPage";
 import "./App.css";
 import { testConnection } from "./services/api";
 
@@ -82,6 +83,7 @@ function App() {
           />
 
           <Route path="/services/:id" element={<SubCategoryPage />} />
+          <Route path="/services" element={<ServicesPage />} />
 
           <Route
             path="/providers/:subId"

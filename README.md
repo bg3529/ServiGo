@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 3rd Semester Project of Kathmandu University Computer Engineering Student group
 
 ## Project Developers 
@@ -11,3 +12,35 @@ A web platform to connects users with service providers such as plumbers, electr
 Allows users to search by category or location, view ratings and reviews, and make service bookings directly through the platform. 
 Aims to simplify access to trusted professionals and streamline the process of hiring skilled help.
 ________________________________________________________________________________________________________________________________________
+=======
+# ServiGo 
+# Django Project – Local Development & Execution Guide
+
+---
+
+## Overview
+- Framework: Django
+- Runtime: Python 3.x
+- Environment: Localhost (development)
+- Database: PostgreSQL 
+- Intended use: learning, testing, experimentation
+
+---
+
+## System Requirements
+
+Ensure the following are installed on your system:
+
+- Python 
+- pip (Python package manager)
+- Git
+- Virtual environment support (`venv`)
+- PostgreSQL 
+
+Verify:
+```bash
+python3 --version
+pip --version
+```
+	
+>>>>>>> profile-backend
