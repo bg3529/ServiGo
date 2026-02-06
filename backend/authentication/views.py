@@ -5,6 +5,10 @@ from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework.response import Response
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.contrib.sites.shortcuts import get_current_site
 # from rest_framework.generics import 
 
 class UserRegistrationAPIView(GenericAPIView):
@@ -72,3 +76,61 @@ class UserLogoutAPIView(GenericAPIView):
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+class RequestPasswordResetEmail(GenericAPIView):
+    serializer_class = ResetPasswordEmailRequestSerializer
+
+    def post(self, request):
+        data = {'request': request, 'data': request.data}
+        serializer = self.serializer_class(data=request.data)
+
+        # Check if email exists
+        if serializer.is_valid(raise_exception=True):
+            email = request.data['email']
+            if CustomUser.objects.filter(email=email).exists():
+                user = CustomUser.objects.get(email=email)
+                uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+                token = PasswordResetTokenGenerator().make_token(user)
+                
+                # In production, use environment variables for domain
+                current_site = 'localhost:5173' # Frontend URL // get_current_site(request).domain
+                relativeLink = f'/reset-password/{uidb64}/{token}' # Frontend route
+                absurl = 'http://'+current_site + relativeLink
+                
+                email_body = 'Hello, \n Use link below to reset your password  \n' + absurl
+                data = {'email_body': email_body, 'to_email': user.email, 'email_subject': 'Reset your passsword'}
+
+                # Using Django's send_mail for simplicity, or a custom Util
+                from django.core.mail import send_mail
+                send_mail(
+                    data['email_subject'],
+                    data['email_body'],
+                    'noreply@servigo.com',
+                    [data['to_email']],
+                    fail_silently=False,
+                )
+                
+            return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
+
+class PasswordTokenCheckAPI(GenericAPIView):
+    # This view is optionally used by frontend to verify token validity before showing the form
+    def get(self, request, uidb64, token):
+        try: 
+            id = smart_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(id=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                 return Response({'error': 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            return Response({'success': True, 'message': 'Credentials Valid', 'uidb64': uidb64, 'token': token}, status=status.HTTP_200_OK)
+
+        except DjangoUnicodeDecodeError as identifier:
+            return Response({'error': 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class SetNewPasswordAPIView(GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+
+    def patch(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'success': True, 'message': 'Password reset success'}, status=status.HTTP_200_OK)

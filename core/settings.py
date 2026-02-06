@@ -211,3 +211,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Add media settings for service images
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Email Backend for Development (Prints to Console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

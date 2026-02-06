@@ -23,6 +23,7 @@ urlpatterns = [
     # path('api/',include("authentication.urls")),
     path('authentication/',include("authentication.urls")),
     path('services/',include("services.urls")),
+    path('api/dashboard/', include("dashboard.urls")), 
 ]
 
 # test creds

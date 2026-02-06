@@ -1,44 +1,55 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { AuthService } from "../services/api";
 import "./Auth.css";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email) {
-      alert("Reset link sent to " + email);
-      setEmail("");
-      navigate("/login");
-    } else {
-      alert("Please enter your email");
+    setLoading(true);
+    setMessage("");
+    setError("");
+
+    try {
+      await AuthService.requestPasswordReset(email);
+      setMessage("If an account exists with this email, you will receive a password reset link.");
+    } catch (err) {
+      setError("Failed to process request. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="auth-layout">
       <div className="auth-image-section">
-        <img src="images/servigologo.png" alt="ServiGo Logo" />
+        <img src="images/servigologo.png" alt="logo" />
       </div>
-
       <div className="auth-form-section">
         <form className="auth-form" onSubmit={handleSubmit}>
-          <h2>Forgot Password?</h2>
-          <p>Enter your email and we'll send you a link to reset your password</p>
+          <h2>Forgot Password</h2>
+          <p>Enter your email to receive a password reset link.</p>
+
+          {message && <div className="success-message" style={{ color: 'green', marginBottom: '10px' }}>{message}</div>}
+          {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
           <input
             type="email"
-            name="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <button type="submit">Send Reset Link</button>
-          
+          <button type="submit" disabled={loading}>
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+
           <p className="auth-footer-text">
-            Remember your password? <a href="/login">Back to Login</a>
+            Remembered? <a href="/login">Log In</a>
           </p>
         </form>
       </div>

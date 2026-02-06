@@ -1,28 +1,39 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authorizedUsers from "../Data/LoginData";
+import { AuthService } from "../services/api";
 import "./Auth.css";
 
 function LoginForm({ onLoginSuccess }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(event) {
     setLoginData({ ...loginData, [event.target.name]: event.target.value });
+    setError(""); // Clear error on typing
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    const user = authorizedUsers.find(
-      (u) => u.email === loginData.email && u.password === loginData.password
-    );
+    try {
+      const data = await AuthService.login(loginData.email, loginData.password);
+      // The backend response structure might vary, but usually contains user info + tokens
+      // Assuming 'data' contains the user object or we reconstruct it
+      const user = data.user || { email: loginData.email, ...data };
 
-    if (user) {
-      onLoginSuccess(user); 
+      onLoginSuccess(user);
       navigate("/home");
-    } else {
-      alert("Invalid email or password. Please try again.");
+    } catch (err) {
+      console.error("Login failed", err);
+      // specific error message from backend
+      const msg = err.response?.data?.detail || err.response?.data?.error || "Invalid email or password. Please try again.";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -36,6 +47,9 @@ function LoginForm({ onLoginSuccess }) {
         <form className="auth-form" onSubmit={handleSubmit}>
           <h2>Login</h2>
           <p>Welcome back! Please enter your details.</p>
+
+          {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
           <input
             type="email"
             name="email"
@@ -53,10 +67,12 @@ function LoginForm({ onLoginSuccess }) {
             required
           />
           <div className="form-options">
-             <a href="/forgot-password">Forgot password?</a>
+            <a href="/forgot-password">Forgot password?</a>
           </div>
-          <button type="submit">Login</button>
-          
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+
           <p className="auth-footer-text">
             Don't have an account? <a href="/register">Sign Up</a>
           </p>

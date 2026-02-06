@@ -7,6 +7,7 @@ import LoginForm from "./Components/LoginForm";
 import RegisterForm from "./Components/RegisterForm";
 import ForgotPassword from "./Components/forgotpassword";
 import Home from "./Pages/Home/Home";
+import ResetPassword from "./Components/ResetPassword";
 import Profile from "./Pages/Profile/Profile";
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
@@ -62,6 +63,7 @@ function App() {
           />
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
 
           <Route
             path="/home"

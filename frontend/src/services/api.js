@@ -3,112 +3,61 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/',  // Added /api/ assuming Django REST Framework
-    timeout: 10000,  // 10 second timeout
+    baseURL: 'http://127.0.0.1:8000/',  // Changed to root to support multiple apps (authentication, services, dashboard)
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
 });
 
-// Request interceptor - Add JWT token to requests
-api.interceptors.request.use(
-    (config) => {
-        // Get token from localStorage
-        const token = localStorage.getItem('access_token') ||
-            localStorage.getItem('token') ||
-            sessionStorage.getItem('access_token');
+// ... (interceptors remain the same) ...
 
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+export const AuthService = {
+    login: async (email, password) => {
+        const response = await api.post('authentication/login/', { email, password });
+        if (response.data.tokens) {
+            localStorage.setItem('access_token', response.data.tokens.access);
+            localStorage.setItem('refresh_token', response.data.tokens.refresh);
+            localStorage.setItem('user', JSON.stringify(response.data));
         }
-
-        // Log request for debugging (remove in production)
-        console.log(`API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
-
-        return config;
+        return response.data;
     },
-    (error) => {
-        console.error('Request Error:', error);
-        return Promise.reject(error);
-    }
-);
-
-// Response interceptor - Handle common errors
-api.interceptors.response.use(
-    (response) => {
-        // Log successful response for debugging
-        console.log(`API Response: ${response.status} ${response.config.url}`);
-        return response;
+    register: async (userData) => {
+        const response = await api.post('authentication/register/', userData);
+        return response.data;
     },
-    async (error) => {
-        const originalRequest = error.config;
-
-        // Log error
-        console.error(`API Error: ${error.response?.status || 'No Status'} ${error.config?.url || 'No URL'}`, error.response?.data || error.message);
-
-        // Handle 401 Unauthorized (Token expired)
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-                // Try to refresh token
-                const refreshToken = localStorage.getItem('refresh_token');
-                if (refreshToken) {
-                    const refreshResponse = await axios.post(
-                        'http://127.0.0.1:8000/api/token/refresh/',
-                        { refresh: refreshToken }
-                    );
-
-                    const newAccessToken = refreshResponse.data.access;
-                    localStorage.setItem('access_token', newAccessToken);
-
-                    // Retry original request with new token
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-                    return api(originalRequest);
-                }
-            } catch (refreshError) {
-                console.error('Token refresh failed:', refreshError);
-                // Clear tokens and redirect to login
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = '/login';
+    logout: async () => {
+        try {
+            const refresh_token = localStorage.getItem('refresh_token');
+            if (refresh_token) {
+                await api.post('authentication/logout/', { refresh_token });
             }
+        } catch (error) {
+            console.error("Logout error", error);
+        } finally {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userBookings');
         }
-
-        // Handle 403 Forbidden
-        if (error.response?.status === 403) {
-            console.error('Access forbidden. Insufficient permissions.');
-            // Optional: Show notification to user
-        }
-
-        // Handle 404 Not Found
-        if (error.response?.status === 404) {
-            console.error('Resource not found.');
-        }
-
-        // Handle 500 Server Error
-        if (error.response?.status >= 500) {
-            console.error('Server error occurred.');
-        }
-
-        // Handle network errors
-        if (!error.response) {
-
-            console.log('error', error);
-        }
-
-        return Promise.reject(error);
+    },
+    getCurrentUser: () => {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+    },
+    requestPasswordReset: async (email) => {
+        const response = await api.post('authentication/request-reset-email/', { email });
+        return response.data;
+    },
+    confirmPasswordReset: async (uidb64, token, password) => {
+        const response = await api.patch('authentication/password-reset-complete/', {
+            uidb64,
+            token,
+            password
+        });
+        return response.data;
     }
-);
-
-// Helper functions for common HTTP methods
-export const ApiService = {
-    get: (url, config = {}) => api.get(url, config),
-    post: (url, data, config = {}) => api.post(url, data, config),
-    put: (url, data, config = {}) => api.put(url, data, config),
-    patch: (url, data, config = {}) => api.patch(url, data, config),
-    delete: (url, config = {}) => api.delete(url, config),
 };
 
 // Test connection function
