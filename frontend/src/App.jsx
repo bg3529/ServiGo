@@ -7,20 +7,21 @@ import LoginForm from "./Components/LoginForm";
 import RegisterForm from "./Components/RegisterForm";
 import ForgotPassword from "./Components/forgotpassword";
 import Home from "./Pages/Home/Home";
-import Profile from "./Pages/Profile/Profile"; 
+import Profile from "./Pages/Profile/Profile";
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
 import "./App.css";
+import { testConnection } from "./services/api";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  
+
   const [bookings, setBookings] = useState(() => {
     const savedBookings = localStorage.getItem("userBookings");
     return savedBookings ? JSON.parse(savedBookings) : [];
   });
-  
+
   useEffect(() => {
     localStorage.setItem("userBookings", JSON.stringify(bookings));
   }, [bookings]);
@@ -53,38 +54,38 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/register" />} />
           <Route path="/register" element={<RegisterForm />} />
-          
-          <Route 
-            path="/login" 
-            element={<LoginForm onLoginSuccess={handleLogin} />} 
+
+          <Route
+            path="/login"
+            element={<LoginForm onLoginSuccess={handleLogin} />}
           />
-          
+
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          
-          <Route 
-            path="/home" 
-            element={currentUser ? <Home currentUser={currentUser} /> : <Navigate to="/login" />} 
+
+          <Route
+            path="/home"
+            element={currentUser ? <Home currentUser={currentUser} /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/profile" 
-            element={currentUser ? <Profile currentUser={currentUser} /> : <Navigate to="/login" />} 
+          <Route
+            path="/profile"
+            element={currentUser ? <Profile currentUser={currentUser} /> : <Navigate to="/login" />}
           />
 
-          <Route 
-            path="/my-bookings" 
+          <Route
+            path="/my-bookings"
             element={currentUser ? (
               <MyBookings bookings={bookings} onCancel={cancelBooking} />
             ) : (
               <Navigate to="/login" />
-            )} 
+            )}
           />
 
           <Route path="/services/:id" element={<SubCategoryPage />} />
-          
-          <Route 
-            path="/providers/:subId" 
-            element={<ProviderListPage onAddBooking={addBooking} />} 
+
+          <Route
+            path="/providers/:subId"
+            element={<ProviderListPage onAddBooking={addBooking} />}
           />
         </Routes>
       </main>
