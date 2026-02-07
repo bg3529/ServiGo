@@ -184,20 +184,25 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
         return service
 
 class BookingSerializer(serializers.ModelSerializer):
-    service_title = serializers.CharField(source='service.title', read_only=True)
-    service_price = serializers.DecimalField(source='service.price', read_only=True, max_digits=10, decimal_places=2)
+    service_details = ServiceListSerializer(source='service', read_only=True)
     customer_name = serializers.CharField(source='customer.get_full_name', read_only=True)
     provider_name = serializers.CharField(source='service.provider.get_full_name', read_only=True)
+    booking_time = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
         fields = [
-            'id', 'customer', 'customer_name', 'service', 'service_title',
-            'service_price', 'booking_date', 'duration', 'total_price',
+            'id', 'customer', 'customer_name', 'service', 'service_details',
+            'booking_date', 'booking_time', 'duration', 'total_price',
             'notes', 'customer_address', 'contact_phone', 'status',
             'payment_status', 'created_at', 'updated_at'
         ]
         read_only_fields = ['customer', 'total_price', 'payment_status']
+
+    def get_booking_time(self, obj):
+        if obj.booking_date:
+            return obj.booking_date.strftime('%H:%M:%S')
+        return None
 
 class BookingCreateSerializer(serializers.ModelSerializer):
     class Meta:

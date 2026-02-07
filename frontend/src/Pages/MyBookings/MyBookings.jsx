@@ -143,8 +143,8 @@ export default function MyBookings() {
             <div key={booking.id} className="booking-card">
               <div className="booking-image-container">
                 <img
-                  src={booking.service?.images?.[0]?.image || booking.service?.primary_image || 'https://via.placeholder.com/150'}
-                  alt={booking.service?.title}
+                  src={booking.service_details?.primary_image || 'https://via.placeholder.com/150'}
+                  alt={booking.service_details?.title}
                   className="booking-image"
                 />
                 <div className={`status-badge ${booking.status.toLowerCase()}`}>
@@ -155,8 +155,8 @@ export default function MyBookings() {
 
               <div className="booking-content">
                 <div className="booking-main-info">
-                  <h3 className="service-title">{booking.service?.title || 'Service Title'}</h3>
-                  <p className="provider-name">by {booking.service?.provider?.username || 'Provider'}</p>
+                  <h3 className="service-title">{booking.service_details?.title || 'Service Title'}</h3>
+                  <p className="provider-name">by {booking.service_details?.provider?.username || 'Provider'}</p>
                   <p className="booking-price">${booking.total_price}</p>
                 </div>
 
@@ -169,10 +169,10 @@ export default function MyBookings() {
                     <Clock size={16} className="detail-icon" />
                     <span>{formatTime(booking.booking_time)}</span>
                   </div>
-                  {booking.location && (
+                  {booking.customer_address && (
                     <div className="detail-item full-width">
                       <MapPin size={16} className="detail-icon" />
-                      <span>{booking.location}</span>
+                      <span>{booking.customer_address}</span>
                     </div>
                   )}
                 </div>
