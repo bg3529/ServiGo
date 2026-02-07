@@ -1,69 +1,177 @@
-import React from 'react';
-import { Calendar, Clock, Package, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Clock, MapPin, AlertCircle, CheckCircle, XCircle, Clock3 } from 'lucide-react';
+import { BookingService } from '../../services/api';
+import { toast } from 'react-hot-toast';
 import './MyBookings.css';
 
-export default function MyBookings({ bookings = [], onCancel }) {
+export default function MyBookings() {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history'
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const data = await BookingService.getBookings();
+      setBookings(data.results || data);
+    } catch (error) {
+      console.error("Failed to fetch bookings", error);
+      toast.error("Could not load your bookings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+
+    try {
+      await BookingService.cancelBooking(id);
+      toast.success("Booking cancelled successfully");
+      fetchBookings(); // Refresh list
+    } catch (error) {
+      console.error("Failed to cancel booking", error);
+      toast.error(error.response?.data?.error || "Failed to cancel booking");
+    }
+  };
+
+  // Filter bookings based on active tab
+  const filteredBookings = bookings.filter(booking => {
+    const isHistory = ['completed', 'cancelled', 'rejected'].includes(booking.status.toLowerCase());
+    return activeTab === 'history' ? isHistory : !isHistory;
+  });
+
+  const getStatusIcon = (status) => {
+    switch (status.toLowerCase()) {
+      case 'confirmed': return <CheckCircle size={16} />;
+      case 'pending': return <Clock3 size={16} />;
+      case 'completed': return <CheckCircle size={16} />;
+      case 'cancelled': return <XCircle size={16} />;
+      default: return <AlertCircle size={16} />;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+    // Basic check if it's HH:MM:SS
+    const [hours, minutes] = timeString.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
+
+
   return (
-    <div className="my-bookings-page">
-      <div className="bookings-header">
+    <div className="page-container">
+      <div className="page-header">
         <h1>My Bookings</h1>
-        <p>Manage your upcoming and past service appointments</p>
+        <p>Manage your appointments and view history</p>
       </div>
 
-      {bookings.length === 0 ? (
-        <div className="empty-state">
+      <div className="bookings-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
+          onClick={() => setActiveTab('active')}
+        >
+          Active Bookings
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          Booking History
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="loading-state">
+          <div className="spinner"></div>
+          <p>Loading your bookings...</p>
+        </div>
+      ) : filteredBookings.length === 0 ? (
+        <div className="no-bookings">
           <div className="empty-icon-box">
-            <Package size={48} />
+            <Calendar size={48} />
           </div>
-          <h3>No Bookings Found</h3>
-          <p>You haven't scheduled any services yet. Explore our categories to get started.</p>
-          <button className="explore-btn" onClick={() => window.location.href = '/home'}>
-            Explore Services
-          </button>
+          <h3>No {activeTab} bookings</h3>
+          <p>
+            {activeTab === 'active'
+              ? "You don't have any upcoming appointments."
+              : "You haven't completed any services yet."}
+          </p>
+          {activeTab === 'active' && (
+            <button className="explore-btn" onClick={() => window.location.href = '/services'}>
+              Find a Service
+            </button>
+          )}
         </div>
       ) : (
-        <div className="bookings-grid">
-          {bookings.map((booking) => (
-            <div key={booking.id} className="booking-card-item">
-              <div className="card-top">
-                <div className="provider-info">
-                  <h3>{booking.providerName}</h3>
-                  <span className="service-tag">{booking.serviceType}</span>
-                </div>
-                <div className="status-badge-container">
-                  <span className={`status-pill ${booking.status.toLowerCase()}`}>
-                    {booking.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="card-middle">
-                <div className="detail-row">
-                  <Calendar size={16} />
-                  <span>{booking.date}</span>
-                </div>
-                <div className="detail-row">
-                  <Clock size={16} />
-                  <span>{booking.time}</span>
+        <div className="bookings-list">
+          {filteredBookings.map((booking) => (
+            <div key={booking.id} className="booking-card">
+              <div className="booking-image-container">
+                <img
+                  src={booking.service?.images?.[0]?.image || booking.service?.primary_image || 'https://via.placeholder.com/150'}
+                  alt={booking.service?.title}
+                  className="booking-image"
+                />
+                <div className={`status-badge ${booking.status.toLowerCase()}`}>
+                  {getStatusIcon(booking.status)}
+                  <span>{booking.status}</span>
                 </div>
               </div>
 
-              <div className="card-bottom">
-                <div className="price-info">
-                  <span className="label">Total Amount</span>
-                  <span className="amount">{booking.price}</span>
+              <div className="booking-content">
+                <div className="booking-main-info">
+                  <h3 className="service-title">{booking.service?.title || 'Service Title'}</h3>
+                  <p className="provider-name">by {booking.service?.provider?.username || 'Provider'}</p>
+                  <p className="booking-price">${booking.total_price}</p>
                 </div>
-                <button 
-                  className="cancel-booking-btn"
-                  onClick={() => {
-                    if(window.confirm("Are you sure you want to cancel this booking?")) {
-                      onCancel(booking.id);
-                    }
-                  }}
-                >
-                  <Trash2 size={16} />
-                  <span>Cancel Booking</span>
-                </button>
+
+                <div className="booking-details-grid">
+                  <div className="detail-item">
+                    <Calendar size={16} className="detail-icon" />
+                    <span>{formatDate(booking.booking_date)}</span>
+                  </div>
+                  <div className="detail-item">
+                    <Clock size={16} className="detail-icon" />
+                    <span>{formatTime(booking.booking_time)}</span>
+                  </div>
+                  {booking.location && (
+                    <div className="detail-item full-width">
+                      <MapPin size={16} className="detail-icon" />
+                      <span>{booking.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="booking-actions">
+                  {activeTab === 'active' && ['pending', 'confirmed'].includes(booking.status.toLowerCase()) && (
+                    <button
+                      className="cancel-btn"
+                      onClick={() => handleCancelBooking(booking.id)}
+                    >
+                      Cancel Booking
+                    </button>
+                  )}
+
+                  {booking.status.toLowerCase() === 'completed' && (
+                    <button className="review-btn">
+                      Leave a Review
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

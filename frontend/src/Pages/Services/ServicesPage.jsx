@@ -30,6 +30,12 @@ export default function ServicesPage() {
     const [sortBy, setSortBy] = useState('newest');
     const [showFilters, setShowFilters] = useState(false);
 
+    // New filters
+    const [locationFilter, setLocationFilter] = useState('');
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [minRating, setMinRating] = useState('');
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
 
@@ -47,11 +53,21 @@ export default function ServicesPage() {
         const cat = params.get('category');
         const sort = params.get('sort') || 'newest';
 
+        const loc = params.get('location') || '';
+        const minP = params.get('min_price') || '';
+        const maxP = params.get('max_price') || '';
+        const minR = params.get('min_rating') || '';
+
         setSearchQuery(q);
         if (cat) setSelectedCategory(cat);
         setSortBy(sort);
 
-        fetchServices(q, cat, sort);
+        setLocationFilter(loc);
+        setMinPrice(minP);
+        setMaxPrice(maxP);
+        setMinRating(minR);
+
+        fetchServices(q, cat, sort, loc, minP, maxP, minR);
     }, [location.search]);
 
     const fetchCategories = async () => {
@@ -63,7 +79,7 @@ export default function ServicesPage() {
         }
     };
 
-    const fetchServices = async (query, category, sort) => {
+    const fetchServices = async (query, category, sort, loc, minP, maxP, minR) => {
         setLoading(true);
         try {
             const params = {
@@ -71,6 +87,10 @@ export default function ServicesPage() {
                 ordering: getSortParam(sort),
             };
             if (category) params.category = category;
+            if (loc) params.location = loc;
+            if (minP) params.min_price = minP;
+            if (maxP) params.max_price = maxP;
+            if (minR) params.min_rating = minR;
 
             const data = await ServiceService.getServices(params);
             setServices(data.results || data);
@@ -95,26 +115,32 @@ export default function ServicesPage() {
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        applyFilters(searchQuery, selectedCategory, sortBy);
+        applyFilters(searchQuery, selectedCategory, sortBy, locationFilter, minPrice, maxPrice, minRating);
     };
 
     const handleCategoryClick = (catId) => {
         const newCat = selectedCategory === catId ? null : catId;
         setSelectedCategory(newCat);
-        applyFilters(searchQuery, newCat, sortBy);
+        applyFilters(searchQuery, newCat, sortBy, locationFilter, minPrice, maxPrice, minRating);
     };
 
     const handleSortChange = (e) => {
         const newSort = e.target.value;
         setSortBy(newSort);
-        applyFilters(searchQuery, selectedCategory, newSort);
+        applyFilters(searchQuery, selectedCategory, newSort, locationFilter, minPrice, maxPrice, minRating);
     };
 
-    const applyFilters = (q, cat, sort) => {
+    const applyFilters = (q, cat, sort, loc, minP, maxP, minR) => {
         const params = new URLSearchParams();
         if (q) params.set('q', q);
         if (cat) params.set('category', cat);
         if (sort !== 'newest') params.set('sort', sort);
+
+        if (loc) params.set('location', loc);
+        if (minP) params.set('min_price', minP);
+        if (maxP) params.set('max_price', maxP);
+        if (minR) params.set('min_rating', minR);
+
         navigate(`/services?${params.toString()}`);
     };
 
@@ -191,15 +217,96 @@ export default function ServicesPage() {
                         ))}
                     </div>
 
-                    <div className="sort-filter">
-                        <select value={sortBy} onChange={handleSortChange} className="sort-select">
-                            <option value="newest">Newest First</option>
-                            <option value="rating">Highest Rated</option>
-                            <option value="price_low">Price: Low to High</option>
-                            <option value="price_high">Price: High to Low</option>
-                        </select>
+                    <div className="filters-right">
+                        <button
+                            className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
+                            onClick={() => setShowFilters(!showFilters)}
+                        >
+                            <Filter size={18} /> Filters
+                        </button>
+
+                        <div className="sort-filter">
+                            <select value={sortBy} onChange={handleSortChange} className="sort-select">
+                                <option value="newest">Newest First</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="price_low">Price: Low to High</option>
+                                <option value="price_high">Price: High to Low</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+
+                {/* Expanded Filters Area */}
+                {showFilters && (
+                    <div className="expanded-filters">
+                        <div className="filter-group">
+                            <label>Location</label>
+                            <div className="input-with-icon">
+                                <input
+                                    type="text"
+                                    placeholder="Enter city or area..."
+                                    value={locationFilter}
+                                    onChange={(e) => setLocationFilter(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="filter-group">
+                            <label>Price Range</label>
+                            <div className="price-inputs">
+                                <input
+                                    type="number"
+                                    placeholder="Min"
+                                    value={minPrice}
+                                    onChange={(e) => setMinPrice(e.target.value)}
+                                    min="0"
+                                />
+                                <span>-</span>
+                                <input
+                                    type="number"
+                                    placeholder="Max"
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
+                                    min="0"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="filter-group">
+                            <label>Rating</label>
+                            <select
+                                value={minRating}
+                                onChange={(e) => setMinRating(e.target.value)}
+                            >
+                                <option value="">Any Rating</option>
+                                <option value="4">4 Stars & Up</option>
+                                <option value="3">3 Stars & Up</option>
+                                <option value="2">2 Stars & Up</option>
+                            </select>
+                        </div>
+
+                        <div className="filter-actions">
+                            <button
+                                className="apply-btn"
+                                onClick={() => applyFilters(searchQuery, selectedCategory, sortBy, locationFilter, minPrice, maxPrice, minRating)}
+                            >
+                                Apply
+                            </button>
+                            <button
+                                className="reset-btn"
+                                onClick={() => {
+                                    setLocationFilter('');
+                                    setMinPrice('');
+                                    setMaxPrice('');
+                                    setMinRating('');
+                                    // Don't apply immediately, let user decide or apply clearFilters() if they want total reset
+                                }}
+                            >
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="loading-state">

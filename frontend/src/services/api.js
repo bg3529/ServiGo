@@ -93,6 +93,44 @@ export const ServiceService = {
     }
 };
 
+export const BookingService = {
+    // Get all bookings (can be filtered by status on frontend or backend)
+    getBookings: async () => {
+        const response = await api.get('services/bookings/');
+        return response.data;
+    },
+
+    // Get upcoming bookings
+    getUpcomingBookings: async () => {
+        const response = await api.get('services/bookings/upcoming/');
+        return response.data;
+    },
+
+    // Get specific booking details
+    getBookingById: async (id) => {
+        const response = await api.get(`services/bookings/${id}/`);
+        return response.data;
+    },
+
+    // Create a new booking
+    createBooking: async (bookingData) => {
+        const response = await api.post('services/bookings/', bookingData);
+        return response.data;
+    },
+
+    // Cancel a booking
+    cancelBooking: async (id) => {
+        const response = await api.post(`services/bookings/${id}/cancel/`);
+        return response.data;
+    },
+
+    // Review a booking (if needed here, though ReviewService might be better)
+    createReview: async (reviewData) => {
+        const response = await api.post('services/reviews/', reviewData);
+        return response.data;
+    }
+};
+
 // Test connection function
 export const testConnection = async () => {
     try {

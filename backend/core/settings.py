@@ -10,10 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -211,3 +217,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Add media settings for service images
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Gemini API Configuration for Chatbot
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAYUJvD3_7Ks8AgEL_vfLS1JzMRhoWMkvM')

@@ -279,6 +279,7 @@ class SearchFilterSerializer(serializers.Serializer):
         required=False,
         choices=['newest', 'oldest', 'price_low', 'price_high', 'rating']
     )
+    min_rating = serializers.IntegerField(required=False, min_value=1, max_value=5)
     verified_only = serializers.BooleanField(required=False, default=False)
     page = serializers.IntegerField(required=False, min_value=1, default=1)
     page_size = serializers.IntegerField(required=False, min_value=1, max_value=100, default=20)

@@ -32,6 +32,7 @@ class ServiceSearchFilter(django_filters.FilterSet):
     max_price = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
     location = django_filters.CharFilter(field_name='location', lookup_expr='icontains')
     verified_only = django_filters.BooleanFilter(field_name='is_verified')
+    min_rating = django_filters.NumberFilter(field_name='rating', lookup_expr='gte')
     sort_by = django_filters.OrderingFilter(
         fields=(
             ('price', 'price'),
@@ -47,7 +48,7 @@ class ServiceSearchFilter(django_filters.FilterSet):
     
     class Meta:
         model = Service
-        fields = ['q', 'category', 'min_price', 'max_price', 'location', 'verified_only']
+        fields = ['q', 'category', 'min_price', 'max_price', 'location', 'verified_only', 'min_rating']
     
     def filter_search(self, queryset, name, value):
         if not value:
