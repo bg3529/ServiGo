@@ -85,19 +85,40 @@ export default function MyBookings() {
           onClick={() => setActiveTab('active')}
         >
           Active Bookings
+          {!loading && (
+            <span className="tab-count">
+              {bookings.filter(b => !['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
+            </span>
+          )}
         </button>
         <button
           className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
         >
           Booking History
+          {!loading && (
+            <span className="tab-count">
+              {bookings.filter(b => ['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
+            </span>
+          )}
         </button>
       </div>
 
       {loading ? (
         <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading your bookings...</p>
+          <div className="skeleton-container">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="skeleton-card">
+                <div className="skeleton-image"></div>
+                <div className="skeleton-content">
+                  <div className="skeleton-line title"></div>
+                  <div className="skeleton-line short"></div>
+                  <div className="skeleton-line medium"></div>
+                  <div className="skeleton-line short"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : filteredBookings.length === 0 ? (
         <div className="no-bookings">

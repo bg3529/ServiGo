@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell } from 'lucide-react';
+import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell, LayoutDashboard, Briefcase, Info } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { AuthService } from '../../services/api';
@@ -60,14 +60,24 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="desktop-nav">
+          <Link to="/dashboard" className={`nav-item ${isActive('/dashboard')}`}>
+            <LayoutDashboard size={18} />
+            <span>Dashboard</span>
+          </Link>
+
           <Link to="/services" className={`nav-item ${isActive('/services')}`}>
             <Search size={18} />
-            <span>Find Services</span>
+            <span>Services</span>
           </Link>
 
           <Link to="/my-bookings" className={`nav-item ${isActive('/my-bookings')}`}>
             <Calendar size={18} />
             <span>Bookings</span>
+          </Link>
+
+          <Link to="/about" className={`nav-item ${isActive('/about')}`}>
+            <Info size={18} />
+            <span>About Us</span>
           </Link>
 
           <Link to="/help" className={`nav-item ${isActive('/help')}`}>
@@ -101,8 +111,17 @@ export default function Navbar() {
                 <Link to="/profile" className="dropdown-item">
                   <User size={16} /> Profile
                 </Link>
+                <Link to="/dashboard" className="dropdown-item">
+                  <LayoutDashboard size={16} /> Dashboard
+                </Link>
                 <Link to="/my-bookings" className="dropdown-item">
                   <Calendar size={16} /> My Bookings
+                </Link>
+                <Link to="/services" className="dropdown-item">
+                  <Briefcase size={16} /> Services
+                </Link>
+                <Link to="/about" className="dropdown-item">
+                  <Info size={16} /> About Us
                 </Link>
                 <div className="dropdown-divider"></div>
                 <button onClick={handleLogout} className="dropdown-item logout">
@@ -125,11 +144,17 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="mobile-menu">
+          <Link to="/dashboard" className="mobile-nav-item">
+            <LayoutDashboard size={20} /> Dashboard
+          </Link>
           <Link to="/services" className="mobile-nav-item">
-            <Search size={20} /> Find Services
+            <Search size={20} /> Services
           </Link>
           <Link to="/my-bookings" className="mobile-nav-item">
             <Calendar size={20} /> My Bookings
+          </Link>
+          <Link to="/about" className="mobile-nav-item">
+            <Info size={20} /> About Us
           </Link>
           <Link to="/help" className="mobile-nav-item">
             <HelpCircle size={20} /> Help

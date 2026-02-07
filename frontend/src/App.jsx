@@ -15,6 +15,8 @@ import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
 import ServicesPage from "./Pages/Services/ServicesPage";
 import HelpPage from "./Pages/Help/HelpPage";
+import AboutUs from "./Pages/AboutUs/AboutUs";
+import BecomeProvider from "./Pages/BecomeProvider/BecomeProvider";
 import ChatWidget from "./Components/ChatBot/ChatWidget";
 import "./App.css";
 import { testConnection } from "./services/api";
@@ -73,6 +75,12 @@ function App() {
             element={currentUser ? <Home currentUser={currentUser} /> : <Navigate to="/login" />}
           />
 
+          {/* Dashboard redirects to Home */}
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/home" replace />}
+          />
+
           <Route
             path="/profile"
             element={currentUser ? <Profile currentUser={currentUser} /> : <Navigate to="/login" />}
@@ -90,6 +98,8 @@ function App() {
           <Route path="/services/:id" element={<SubCategoryPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/help" element={<HelpPage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/become-provider" element={<BecomeProvider />} />
 
           <Route
             path="/providers/:subId"

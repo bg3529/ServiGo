@@ -32,6 +32,7 @@ export default function Footer() {
           <h3>Company</h3>
           <ul>
             <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/careers">Careers</Link></li>
             <li><Link to="/blog">Blog</Link></li>
             <li><Link to="/contact">Contact</Link></li>
@@ -42,6 +43,7 @@ export default function Footer() {
         <div className="footer-col">
           <h3>Services</h3>
           <ul>
+            <li><Link to="/services">All Services</Link></li>
             <li><Link to="/services?category=Cleaning">Home Cleaning</Link></li>
             <li><Link to="/services?category=Plumbing">Plumbing</Link></li>
             <li><Link to="/services?category=Electrical">Electrical</Link></li>
