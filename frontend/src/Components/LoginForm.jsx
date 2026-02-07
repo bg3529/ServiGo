@@ -1,23 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../services/api";
+import toast from 'react-hot-toast';
 import "./Auth.css";
 
 function LoginForm({ onLoginSuccess }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(event) {
     setLoginData({ ...loginData, [event.target.name]: event.target.value });
-    setError(""); // Clear error on typing
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
       const data = await AuthService.login(loginData.email, loginData.password);
@@ -26,12 +24,13 @@ function LoginForm({ onLoginSuccess }) {
       const user = data.user || { email: loginData.email, ...data };
 
       onLoginSuccess(user);
+      toast.success(`Welcome back, ${user.username || 'User'}!`);
       navigate("/home");
     } catch (err) {
       console.error("Login failed", err);
       // specific error message from backend
       const msg = err.response?.data?.detail || err.response?.data?.error || "Invalid email or password. Please try again.";
-      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -47,8 +46,6 @@ function LoginForm({ onLoginSuccess }) {
         <form className="auth-form" onSubmit={handleSubmit}>
           <h2>Login</h2>
           <p>Welcome back! Please enter your details.</p>
-
-          {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
           <input
             type="email"

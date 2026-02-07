@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
+import { ServiceService } from '../../services/api';
 import './BookingModal.css';
 
 export default function BookingModal({ provider, onClose, onConfirmBooking }) {
   const [isSuccess, setIsSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     date: '',
     time: '',
+    duration: 1,
+    address: '',
+    phone: '',
     notes: ''
   });
 
@@ -13,33 +20,49 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleConfirm = (e) => {
+  const handleConfirm = async (e) => {
     e.preventDefault();
-    if (!formData.date || !formData.time) {
-      alert("Please select both a date and a preferred time.");
+    setError(null);
+
+    if (!formData.date || !formData.time || !formData.address || !formData.phone) {
+      setError("Please fill in all required fields.");
       return;
     }
 
-    const newBooking = {
-      id: Date.now(),
-      providerName: provider.name,
-      serviceType: provider.subCategoryName,
-      price: provider.price,
-      date: formData.date,
-      time: formData.time,
-      status: 'Confirmed'
-    };
+    setLoading(true);
 
-    onConfirmBooking(newBooking);
-    setIsSuccess(true);
-    setTimeout(() => onClose(), 2500);
+    try {
+      // Construct ISO datetime from date and time
+      const bookingDate = new Date(`${formData.date}T${formData.time}`);
+
+      const payload = {
+        service: provider.id,
+        booking_date: bookingDate.toISOString(),
+        duration: parseInt(formData.duration),
+        customer_address: formData.address,
+        contact_phone: formData.phone,
+        notes: formData.notes
+      };
+
+      const response = await ServiceService.createBooking(payload);
+
+      setIsSuccess(true);
+      if (onConfirmBooking) onConfirmBooking(response);
+
+      setTimeout(() => onClose(), 2500);
+    } catch (err) {
+      console.error("Booking failed", err);
+      setError(err.response?.data?.detail || err.response?.data?.error || "Failed to create booking. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         {!isSuccess && <button className="close-x" onClick={onClose}>&times;</button>}
-        
+
         {isSuccess ? (
           <div className="success-view">
             <div className="success-icon">✓</div>
@@ -50,62 +73,101 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
         ) : (
           <>
             <div className="modal-header">
-              <div className="category-path">
-                <span>{provider.categoryName || "Service"}</span> 
-                <span className="path-separator">/</span>
-                <span>{provider.subCategoryName || "Booking"}</span>
-              </div>
-              <h2>Book Appointment</h2>
-              <p>With <strong>{provider.name}</strong></p>
+              <span className="modal-badge">{provider.categoryName || "Service"}</span>
+              <h2>Book Service</h2>
+              <p>with <strong>{provider.name}</strong></p>
             </div>
 
+            {error && <div className="error-banner">{error}</div>}
+
             <form className="booking-form" onSubmit={handleConfirm}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Start Time</label>
+                  <input
+                    type="time"
+                    name="time"
+                    value={formData.time}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
-                <label>Appointment Date</label>
-                <input 
-                  type="date" 
-                  name="date"
-                  value={formData.date}
+                <label>Duration (Hours)</label>
+                <input
+                  type="number"
+                  name="duration"
+                  value={formData.duration}
                   onChange={handleChange}
-                  min={new Date().toISOString().split('T')[0]}
-                  required 
+                  min="1"
+                  max="24"
+                  required
                 />
               </div>
 
               <div className="form-group">
-                <label>Preferred Time</label>
-                <input 
-                  type="time" 
-                  name="time"
-                  value={formData.time}
+                <label>Service Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
                   onChange={handleChange}
-                  required 
+                  placeholder="Full address where service is needed"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Contact Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Your contact number"
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label>Special Instructions (Optional)</label>
-                <textarea 
+                <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
                   placeholder="Any specific details..."
-                  rows="3"
+                  rows="2"
                 ></textarea>
               </div>
 
               <div className="booking-summary-box">
                 <div className="summary-item">
-                  <span>Service Fee</span>
-                  <span>Rs. {provider.price}</span>
+                  <span>Rate</span>
+                  <span>Rs. {provider.price}/{provider.priceUnit}</span>
                 </div>
                 <div className="summary-total">
-                  <span>Total Payable</span>
-                  <span>Rs. {provider.price}</span>
+                  <span>Est. Total</span>
+                  <span>Rs. {provider.price * formData.duration}</span>
                 </div>
               </div>
 
-              <button type="submit" className="confirm-btn">Confirm Booking</button>
+              <button type="submit" className="confirm-btn" disabled={loading}>
+                {loading ? 'Processing...' : 'Confirm Booking'}
+              </button>
             </form>
           </>
         )}

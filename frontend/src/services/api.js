@@ -60,6 +60,39 @@ export const AuthService = {
     }
 };
 
+export const ServiceService = {
+    // Get all services with optional filters
+    getServices: async (params) => {
+        // params can include: search, category, min_price, max_price, ordering
+        const response = await api.get('services/services/search/', { params });
+        return response.data;
+    },
+
+    // Get all categories
+    getCategories: async () => {
+        const response = await api.get('services/categories/');
+        return response.data;
+    },
+
+    // Get filter options (min/max price, sort options)
+    getFilterOptions: async () => {
+        const response = await api.get('services/filter-options/');
+        return response.data;
+    },
+
+    // Get featured services
+    getFeaturedServices: async () => {
+        const response = await api.get('services/services/featured/');
+        return response.data;
+    },
+
+    // Get specific service details
+    getServiceById: async (id) => {
+        const response = await api.get(`services/services/${id}/`);
+        return response.data;
+    }
+};
+
 // Test connection function
 export const testConnection = async () => {
     try {

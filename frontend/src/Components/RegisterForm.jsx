@@ -1,23 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../services/api";
+import toast from 'react-hot-toast';
 import "./Auth.css";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(event) {
     setFormData({ ...formData, [event.target.name]: event.target.value });
-    setError("");
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setIsLoading(true);
-    setError("");
 
     // Backend expects password1 and password2
     const payload = {
@@ -30,7 +28,7 @@ function RegisterForm() {
 
     try {
       await AuthService.register(payload);
-      alert("Account created! Please log in.");
+      toast.success("Account created successfully! Please log in.");
       navigate("/login");
     } catch (err) {
       console.error("Registration failed", err);
@@ -38,7 +36,7 @@ function RegisterForm() {
         err.response?.data?.username?.[0] ||
         err.response?.data?.password1?.[0] || // Check password1 error
         "Registration failed. Please try again.";
-      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +52,6 @@ function RegisterForm() {
         <form className="auth-form" onSubmit={handleSubmit}>
           <h2>Register</h2>
           <p>Join ServiGo to find the best services in Dhulikhel.</p>
-
-          {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
           <input
             type="text"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 
 import Navbar from "./Components/Navbar/Navbar";
 import Footer from "./Components/Footer/Footer";
@@ -13,6 +14,8 @@ import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
 import ServicesPage from "./Pages/Services/ServicesPage";
+import HelpPage from "./Pages/Help/HelpPage";
+import ChatWidget from "./Components/ChatBot/ChatWidget";
 import "./App.css";
 import { testConnection } from "./services/api";
 
@@ -86,6 +89,7 @@ function App() {
 
           <Route path="/services/:id" element={<SubCategoryPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/help" element={<HelpPage />} />
 
           <Route
             path="/providers/:subId"
@@ -95,6 +99,8 @@ function App() {
       </main>
 
       {!isAuthPage && <Footer />}
+      <Toaster position="top-right" />
+      <ChatWidget />
     </div>
   );
 }

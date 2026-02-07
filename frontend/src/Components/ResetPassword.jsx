@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthService } from "../services/api";
+import toast from 'react-hot-toast';
 import "./Auth.css";
 
 export default function ResetPassword() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     // We expect the URL to be /reset-password/:uid/:token
@@ -18,16 +17,14 @@ export default function ResetPassword() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage("");
-        setError("");
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match");
+            toast.error("Passwords do not match");
             return;
         }
 
         if (password.length < 8) {
-            setError("Password must be at least 8 characters");
+            toast.error("Password must be at least 8 characters");
             return;
         }
 
@@ -35,13 +32,13 @@ export default function ResetPassword() {
 
         try {
             await AuthService.confirmPasswordReset(uid, token, password);
-            setMessage("Password reset successful! Redirecting to login...");
+            toast.success("Password reset successful! Redirecting to login...");
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
         } catch (err) {
             console.error(err);
-            setError("Failed to reset password. The link may be invalid or expired.");
+            toast.error("Failed to reset password. The link may be invalid or expired.");
         } finally {
             setLoading(false);
         }
@@ -56,9 +53,6 @@ export default function ResetPassword() {
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <h2>Reset Password</h2>
                     <p>Enter your new password below.</p>
-
-                    {message && <div className="success-message" style={{ color: 'green', marginBottom: '10px' }}>{message}</div>}
-                    {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
                     <input
                         type="password"

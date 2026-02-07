@@ -1,66 +1,105 @@
-.profile-page-container {
-    padding: 40px 20px;
-    background-color: #ffffff;
-    min-height: 100vh;
-    max-width: 1200px;
-    margin: 0 auto;
-    animation: fadeIn 0.5s ease-in;
+/* Profile.css */
+.profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    min-height: 80vh;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.profile-card {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Provider Toggle Banner */
-.register-provider-footer {
-    margin-top: 50px;
-    cursor: pointer;
-}
-
-.provider-promo {
+.profile-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    padding: 40px 30px;
     display: flex;
     align-items: center;
-    gap: 25px;
-    padding: 30px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-radius: 20px;
-    border: 1px solid #bbf7d0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    gap: 30px;
+    color: white;
 }
 
-.provider-promo:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.15);
-    border-color: #86efac;
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+    background: white;
 }
 
-/* Adding a subtle glow effect on hover */
-.provider-promo::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    transition: 0.5s;
-}
-
-.provider-promo:hover::after {
-    left: 100%;
-}
-
-.promo-content h4 {
-    margin: 0;
-    color: #064e3b;
-    font-size: 20px;
+.profile-header-info h1 {
+    margin: 0 0 8px 0;
+    font-size: 2rem;
     font-weight: 700;
 }
 
-.promo-content p {
-    margin: 6px 0 0;
-    font-size: 15px;
-    color: #065f46;
+.profile-header-info p {
+    margin: 0;
     opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.profile-content {
+    padding: 40px 30px;
+}
+
+.profile-section {
+    margin-bottom: 40px;
+}
+
+.profile-section h2 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.info-item p {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.edit-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-btn:hover {
+    background: var(--bg-color);
+    border-color: var(--text-muted);
 }

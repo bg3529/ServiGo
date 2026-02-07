@@ -1,0 +1,191 @@
+.help-container {
+    padding-bottom: 60px;
+    background-color: var(--bg-color);
+    min-height: 100vh;
+}
+
+.help-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    padding: 100px 20px 120px;
+    text-align: center;
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+}
+
+.help-header h1 {
+    font-size: 3rem;
+    margin-bottom: 30px;
+    font-weight: 800;
+}
+
+.search-help {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-help input {
+    padding: 16px 25px;
+    border-radius: var(--radius-full);
+    border: none;
+    width: 100%;
+    font-size: 1.05rem;
+    box-shadow: var(--shadow-lg);
+    color: var(--text-main);
+}
+
+.search-help input:focus {
+    outline: none;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.faq-section {
+    max-width: 1000px;
+    margin: -60px auto 40px;
+    /* Overlap header */
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.faq-section h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--text-main);
+    font-weight: 700;
+    margin-top: 80px;
+    /* When not overlapping */
+}
+
+/* Override margin for specific overlap look */
+.help-header+.faq-section h2 {
+    margin-top: 0;
+    margin-bottom: 40px;
+    color: white;
+    /* Make header title white if it's inside the color block? No, it's below. */
+}
+
+/* Wait, I designed it to overlap, but the boxes overlap. The title "Frequently Asked ..." handles itself. */
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.faq-item {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.faq-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.faq-item h3 {
+    color: var(--text-main);
+    margin-bottom: 12px;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.faq-item p {
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.contact-support {
+    text-align: center;
+    margin-top: 60px;
+    color: var(--text-muted);
+}
+
+.contact-support a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.contact-support a:hover {
+    text-decoration: underline;
+}
+
+.help-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.help-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.search-help input {
+    padding: 15px 25px;
+    border-radius: 30px;
+    border: none;
+    width: 100%;
+    max-width: 500px;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.faq-section {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.faq-section h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #1f2937;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.faq-item {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.faq-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.faq-item h3 {
+    color: #111827;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+.faq-item p {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.contact-support {
+    text-align: center;
+    margin-top: 60px;
+    color: #6b7280;
+}
+
+.contact-support a {
+    color: #3b82f6;
+    font-weight: 500;
+}

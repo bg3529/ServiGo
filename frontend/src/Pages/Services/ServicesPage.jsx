@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Home, ChevronRight, Search, Filter } from 'lucide-react';
-import api from '../../services/api';
+import { Home, ChevronRight, Search, Filter, Wrench, Sparkles, Truck, Zap, Coffee, MoreHorizontal, X } from 'lucide-react';
+import { ServiceService } from '../../services/api';
 import ProviderCard from '../../Components/ProviderCard/ProviderCard';
 import BookingModal from '../../Components/BookingForm/BookingModal';
 import './ServicesPage.css';
 
+// Map common category names to Lucide icons
+const categoryIcons = {
+    'Cleaning': Sparkles,
+    'Plumbing': Wrench,
+    'Electrical': Zap,
+    'Moving': Truck,
+    'Painting': Wrench,
+    'Repair': Wrench,
+    'Other': MoreHorizontal
+};
+
 export default function ServicesPage() {
+    // Data state
     const [services, setServices] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Filter state
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [sortBy, setSortBy] = useState('newest');
+    const [showFilters, setShowFilters] = useState(false);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
@@ -18,20 +36,44 @@ export default function ServicesPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Extract query params
+    // Initial load: Fetch categories & parse URL params
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const q = params.get('q') || '';
+        const cat = params.get('category');
+        const sort = params.get('sort') || 'newest';
+
         setSearchQuery(q);
-        fetchServices(q);
+        if (cat) setSelectedCategory(cat);
+        setSortBy(sort);
+
+        fetchServices(q, cat, sort);
     }, [location.search]);
 
-    const fetchServices = async (query) => {
+    const fetchCategories = async () => {
+        try {
+            const data = await ServiceService.getCategories();
+            setCategories(data);
+        } catch (err) {
+            console.error("Failed to load categories", err);
+        }
+    };
+
+    const fetchServices = async (query, category, sort) => {
         setLoading(true);
         try {
-            // Use the search endpoint we confirmed exists in backend
-            const response = await api.get(`/services/services/search/?q=${encodeURIComponent(query)}`);
-            setServices(response.data.results || response.data); // Handle paginated or list response
+            const params = {
+                search: query,
+                ordering: getSortParam(sort),
+            };
+            if (category) params.category = category;
+
+            const data = await ServiceService.getServices(params);
+            setServices(data.results || data);
             setError(null);
         } catch (err) {
             console.error("Error fetching services:", err);
@@ -41,25 +83,62 @@ export default function ServicesPage() {
         }
     };
 
-    const handleBooking = (service) => {
-        // Adapter to match ProviderCard expectation (if needed) or pass service directly
-        // ProviderCard expects 'provider' object. 
-        // The backend returns Service objects which contain provider info.
-        // We might need to adapt the data structure if ProviderCard is strict.
-        // Looking at ProviderCard usage in ProviderListPage: it passes whole 'pro' object.
-
-        // For now, let's assume we pass the service object as the provider for booking
-        setSelectedService(service);
-        setIsModalOpen(true);
+    const getSortParam = (sortStr) => {
+        switch (sortStr) {
+            case 'price_low': return 'price';
+            case 'price_high': return '-price';
+            case 'rating': return '-rating';
+            case 'oldest': return 'created_at';
+            default: return '-created_at'; // newest
+        }
     };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        navigate(`/services?q=${encodeURIComponent(searchQuery)}`);
+        applyFilters(searchQuery, selectedCategory, sortBy);
+    };
+
+    const handleCategoryClick = (catId) => {
+        const newCat = selectedCategory === catId ? null : catId;
+        setSelectedCategory(newCat);
+        applyFilters(searchQuery, newCat, sortBy);
+    };
+
+    const handleSortChange = (e) => {
+        const newSort = e.target.value;
+        setSortBy(newSort);
+        applyFilters(searchQuery, selectedCategory, newSort);
+    };
+
+    const applyFilters = (q, cat, sort) => {
+        const params = new URLSearchParams();
+        if (q) params.set('q', q);
+        if (cat) params.set('category', cat);
+        if (sort !== 'newest') params.set('sort', sort);
+        navigate(`/services?${params.toString()}`);
+    };
+
+    const clearFilters = () => {
+        setSearchQuery('');
+        setSelectedCategory(null);
+        setSortBy('newest');
+        navigate('/services');
+    };
+
+    const handleBooking = (service) => {
+        setSelectedService(service);
+        setIsModalOpen(true);
+    };
+
+    // Helper to get icon for category
+    const getCategoryIcon = (catName) => {
+        // Simple fuzzy match or fallback
+        const Icon = categoryIcons[catName] || categoryIcons[Object.keys(categoryIcons).find(k => catName.includes(k))] || categoryIcons['Other'];
+        return <Icon size={20} />;
     };
 
     return (
-        <div className="services-page-container">
+        <div className="services-page">
             <nav className="breadcrumb-nav">
                 <Link to="/home" className="breadcrumb-link"><Home size={14} /> Home</Link>
                 <ChevronRight size={14} className="sep" />
@@ -68,23 +147,70 @@ export default function ServicesPage() {
 
             <div className="services-header">
                 <h1>Find Your Service</h1>
-                <form onSubmit={handleSearchSubmit} className="search-bar-active">
+                <form onSubmit={handleSearchSubmit} className="services-search-container">
                     <Search size={20} className="search-icon" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search for services..."
+                        placeholder="Search for services (e.g. cleaning, plumbing)..."
                     />
                     <button type="submit">Search</button>
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            className="clear-search-btn"
+                            onClick={() => { setSearchQuery(''); applyFilters('', selectedCategory, sortBy); }}
+                            style={{ right: '110px', background: 'transparent', color: '#999', width: 'auto', padding: '0 10px' }}
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
                 </form>
             </div>
 
-            <div className="services-content">
+            <div className="services-grid-container">
+                {/* Filters Bar */}
+                <div className="filters-bar">
+                    <div className="categories-scroll">
+                        <button
+                            className={`category-chip ${selectedCategory === null ? 'active' : ''}`}
+                            onClick={() => handleCategoryClick(null)}
+                        >
+                            All
+                        </button>
+                        {categories.map(cat => (
+                            <button
+                                key={cat.id}
+                                className={`category-chip ${selectedCategory == cat.id ? 'active' : ''}`}
+                                onClick={() => handleCategoryClick(cat.id)}
+                            >
+                                {cat.icon ? <img src={cat.icon} alt="" className="cat-icon-img" /> : getCategoryIcon(cat.name)}
+                                <span>{cat.name}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="sort-filter">
+                        <select value={sortBy} onChange={handleSortChange} className="sort-select">
+                            <option value="newest">Newest First</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="price_low">Price: Low to High</option>
+                            <option value="price_high">Price: High to Low</option>
+                        </select>
+                    </div>
+                </div>
+
                 {loading ? (
-                    <div className="loading-state">Loading services...</div>
+                    <div className="loading-state">
+                        <div className="spinner"></div>
+                        <p>Finding the best services for you...</p>
+                    </div>
                 ) : error ? (
-                    <div className="error-state">{error}</div>
+                    <div className="error-state">
+                        <p>{error}</p>
+                        <button onClick={() => fetchServices(searchQuery, selectedCategory, sortBy)}>Try Again</button>
+                    </div>
                 ) : services.length > 0 ? (
                     <div className="services-grid">
                         {services.map(service => (
@@ -92,13 +218,14 @@ export default function ServicesPage() {
                                 key={service.id}
                                 provider={{
                                     ...service,
-                                    // Map backend fields to what ProviderCard might expect if different
-                                    name: service.provider?.first_name ? `${service.provider.first_name} ${service.provider.last_name}` : service.provider?.username || 'Provider',
-                                    image: service.primary_image || 'https://via.placeholder.com/150',
+                                    name: service.provider?.first_name
+                                        ? `${service.provider.first_name} ${service.provider.last_name}`
+                                        : service.provider?.username || 'Service Provider',
+                                    image: service.primary_image || (service.images && service.images[0]?.image) || 'https://via.placeholder.com/300',
                                     rating: service.rating || 5.0,
                                     reviewCount: service.total_reviews || 0,
                                     price: service.price,
-                                    priceUnit: service.price_unit,
+                                    priceUnit: service.price_unit || 'hr',
                                     categoryName: service.category?.name,
                                     description: service.description
                                 }}
@@ -108,19 +235,21 @@ export default function ServicesPage() {
                     </div>
                 ) : (
                     <div className="no-results">
-                        <h3>No services found for "{searchQuery}"</h3>
-                        <p>Try checking your spelling or search for something else.</p>
+                        <div className="no-res-icon">🔍</div>
+                        <h3>No services found</h3>
+                        <p>We couldn't find any services matching your criteria.</p>
+                        <button onClick={clearFilters} className="clear-filters-btn">Clear all filters</button>
                     </div>
                 )}
             </div>
 
             {isModalOpen && (
                 <BookingModal
-                    provider={selectedService} // Verify if BookingModal expects service or provider
+                    provider={selectedService}
                     onClose={() => setIsModalOpen(false)}
                     onConfirmBooking={() => {
                         setIsModalOpen(false);
-                        // Add booking logic or refresh
+                        // Ideally trigger a toast here
                     }}
                 />
             )}

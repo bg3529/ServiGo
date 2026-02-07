@@ -1,4 +1,86 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+:root {
+    /* Brand Colors - Trustworthy Blue/Indigo Theme */
+    --primary-color: #2563EB;
+    /* Blue 600 */
+    --primary-hover: #1D4ED8;
+    /* Blue 700 */
+    --secondary-color: #0EA5E9;
+    /* Sky 500 */
+    --accent-color: #F59E0B;
+    /* Amber 500 - for highlights/ratings */
+
+    /* Neutral Colors */
+    --bg-color: #F9FAFB;
+    /* Gray 50 */
+    --surface-color: #FFFFFF;
+    --text-main: #111827;
+    /* Gray 900 */
+    --text-muted: #6B7280;
+    /* Gray 500 */
+    --border-color: #E5E7EB;
+    /* Gray 200 */
+
+    /* Feedback Colors */
+    --success-color: #10B981;
+    /* Emerald 500 */
+    --error-color: #EF4444;
+    /* Red 500 */
+    --warning-color: #F59E0B;
+
+    /* Typography */
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+    /* Spacing & Layout */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+
+    /* Shadows - Elevation/Depth */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Common Utility Classes for Clean UI */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.card {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}

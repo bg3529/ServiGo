@@ -1,46 +1,147 @@
-import React from 'react';
-import { User, Calendar, LogOut } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { AuthService } from '../../services/api';
 import './Navbar.css';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to log out?");
-    if (confirmLogout) {
-      navigate('/');
-    }
+    AuthService.logout();
+    toast.success("Successfully logged out");
+    navigate('/login');
   };
 
+  const isActive = (path) => location.pathname === path ? 'active' : '';
+
   return (
-    <header className="navbar-container">
+    <header className={`navbar-container ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-content">
-        
+
+        {/* Logo */}
         <Link to="/home" className="logo-section">
           <div className="logo-icon">
-            <img src="./images/servigologo.png" alt="ServiGo Logo" />
+            <img src="/images/servigologo.png" alt="ServiGo" onError={(e) => e.target.style.display = 'none'} />
           </div>
+          <span className="logo-text">ServiGo</span>
         </Link>
 
+        {/* Desktop Nav */}
         <nav className="desktop-nav">
-          <Link to="/profile" className="nav-item">
-            <User size={20} />
-            <span>My Profile</span>
+          <Link to="/services" className={`nav-item ${isActive('/services')}`}>
+            <Search size={18} />
+            <span>Find Services</span>
           </Link>
 
-          <Link to="/my-bookings" className="nav-item">
-            <Calendar size={20} />
-            <span>My Bookings</span>
+          <Link to="/my-bookings" className={`nav-item ${isActive('/my-bookings')}`}>
+            <Calendar size={18} />
+            <span>Bookings</span>
           </Link>
 
-          <button onClick={handleLogout} className="nav-item logout-btn">
-            <LogOut size={20} />
-            <span>Log Out</span>
-          </button>
+          <Link to="/help" className={`nav-item ${isActive('/help')}`}>
+            <HelpCircle size={18} />
+            <span>Help</span>
+          </Link>
         </nav>
 
+        {/* Right Side Actions */}
+        <div className="nav-actions">
+          {/* Notification Bell (Placeholder) */}
+          <button className="icon-btn">
+            <Bell size={20} />
+            <span className="notification-dot"></span>
+          </button>
+
+          {/* User Profile Dropdown */}
+          <div className="profile-dropdown-container" ref={dropdownRef}>
+            <button
+              className="profile-btn"
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+            >
+              <div className="user-avatar-placeholder">
+                <User size={20} />
+              </div>
+              <ChevronDown size={14} className={`chevron ${isProfileDropdownOpen ? 'rotate' : ''}`} />
+            </button>
+
+            {isProfileDropdownOpen && (
+              <div className="dropdown-menu">
+                <Link to="/profile" className="dropdown-item">
+                  <User size={16} /> Profile
+                </Link>
+                <Link to="/my-bookings" className="dropdown-item">
+                  <Calendar size={16} /> My Bookings
+                </Link>
+                <div className="dropdown-divider"></div>
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <LogOut size={16} /> Log Out
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu">
+          <Link to="/services" className="mobile-nav-item">
+            <Search size={20} /> Find Services
+          </Link>
+          <Link to="/my-bookings" className="mobile-nav-item">
+            <Calendar size={20} /> My Bookings
+          </Link>
+          <Link to="/help" className="mobile-nav-item">
+            <HelpCircle size={20} /> Help
+          </Link>
+          <Link to="/profile" className="mobile-nav-item">
+            <User size={20} /> Profile
+          </Link>
+          <button onClick={handleLogout} className="mobile-nav-item logout">
+            <LogOut size={20} /> Log Out
+          </button>
+        </div>
+      )}
     </header>
   );
 }

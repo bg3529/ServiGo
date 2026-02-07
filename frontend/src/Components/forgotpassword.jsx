@@ -1,24 +1,21 @@
 import React, { useState } from "react";
 import { AuthService } from "../services/api";
+import toast from 'react-hot-toast';
 import "./Auth.css";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
-    setError("");
 
     try {
       await AuthService.requestPasswordReset(email);
-      setMessage("If an account exists with this email, you will receive a password reset link.");
+      toast.success("Reset link sent! Check your email (or console for dev).");
     } catch (err) {
-      setError("Failed to process request. Please try again.");
+      toast.error("Failed to process request. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -33,9 +30,6 @@ function ForgotPassword() {
         <form className="auth-form" onSubmit={handleSubmit}>
           <h2>Forgot Password</h2>
           <p>Enter your email to receive a password reset link.</p>
-
-          {message && <div className="success-message" style={{ color: 'green', marginBottom: '10px' }}>{message}</div>}
-          {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
 
           <input
             type="email"
