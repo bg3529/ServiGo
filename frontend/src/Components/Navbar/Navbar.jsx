@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell, LayoutDashboard, Briefcase, Info } from 'lucide-react';
+import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell, LayoutDashboard, Briefcase, Info, Plus } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { AuthService } from '../../services/api';
@@ -84,6 +84,18 @@ export default function Navbar() {
             <HelpCircle size={18} />
             <span>Help</span>
           </Link>
+
+          {!AuthService.getCurrentUser()?.is_provider ? (
+            <Link to="/become-provider" className={`nav-item ${isActive('/become-provider')}`}>
+              <Briefcase size={18} />
+              <span>Become a Provider</span>
+            </Link>
+          ) : (
+            <Link to="/add-service" className={`nav-item ${isActive('/add-service')}`}>
+              <Plus size={18} />
+              <span>Add Service</span>
+            </Link>
+          )}
         </nav>
 
         {/* Right Side Actions */}

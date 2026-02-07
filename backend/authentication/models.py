@@ -5,6 +5,7 @@ import uuid
 class CustomUser(AbstractUser):
     id = models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True,editable=False)
     email=models.EmailField(unique=True) # prevents dupicate accounts
+    is_provider = models.BooleanField(default=False)
     USERNAME_FIELD="email"
     REQUIRED_FIELDS=["username"]
 

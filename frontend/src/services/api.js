@@ -57,6 +57,10 @@ export const AuthService = {
             password
         });
         return response.data;
+    },
+    becomeProvider: async (providerData) => {
+        const response = await api.post('authentication/become-provider/', providerData);
+        return response.data;
     }
 };
 

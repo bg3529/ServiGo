@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthService } from '../../services/api';
 import ProviderCard from '../../Components/ProviderCard/ProviderCard';
 import { Briefcase, Upload, DollarSign, Clock, FileText, User } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -43,16 +44,28 @@ const BecomeProvider = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here we would typically make an API call to register the provider
-        console.log("Submitting provider data:", providerCardData);
 
-        toast.success("Application submitted successfully!");
-        // Simulate API delay
-        setTimeout(() => {
-            navigate('/dashboard');
-        }, 1500);
+        try {
+            // Call the API
+            await AuthService.becomeProvider(providerCardData);
+
+            // Update local storage user data
+            const updatedUser = { ...currentUser, is_provider: true };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
+            toast.success("Congratulations! You are now a service provider.");
+
+            // Navigate to dashboard
+            setTimeout(() => {
+                navigate('/dashboard');
+                window.location.reload(); // Reload to refresh navbar
+            }, 1500);
+        } catch (error) {
+            console.error("Error becoming provider:", error);
+            toast.error(error.response?.data?.error || "Failed to submit application. Please try again.");
+        }
     };
 
     return (

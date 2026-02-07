@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ServiceService } from '../../services/api';
+import { BookingService } from '../../services/api';
 import './BookingModal.css';
 
 export default function BookingModal({ provider, onClose, onConfirmBooking }) {
@@ -44,7 +44,7 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
         notes: formData.notes
       };
 
-      const response = await ServiceService.createBooking(payload);
+      const response = await BookingService.createBooking(payload);
 
       setIsSuccess(true);
       if (onConfirmBooking) onConfirmBooking(response);

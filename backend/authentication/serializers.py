@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ("id","username","email")
+        fields = ("id","username","email", "is_provider")
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
@@ -16,7 +16,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=CustomUser
-        fields = ("id","username","email","password1","password2")
+        fields = ("id","username","email","password1","password2", "is_provider")
         extra_kwargs={"password":{"write_only":True}}
 
 
