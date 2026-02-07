@@ -134,8 +134,18 @@ class ServiceViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             queryset = Service.objects.filter(is_available=True)
             
+            data = serializer.validated_data.copy()
+            if 'search' in data and not data.get('q'):
+                data['q'] = data.pop('search')
+            if 'ordering' in data and not data.get('sort_by'):
+                # Map DRF ordering to our sort_by choices if needed
+                ordering = data.pop('ordering')
+                # Map -created_at to newest, etc. if required by filter
+                # However, ServiceSearchFilter.sort_by is an OrderingFilter, so it might expect field names
+                data['sort_by'] = ordering
+            
             # Apply filters
-            filterset = ServiceSearchFilter(serializer.validated_data, queryset)
+            filterset = ServiceSearchFilter(data, queryset)
             queryset = filterset.qs
             
             # Apply pagination
@@ -151,7 +161,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
             )
             return Response(serializer.data)
         
-        return Response(serializer.errors, status=status.HTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['get'])
     def featured(self, request):

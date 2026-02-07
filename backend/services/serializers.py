@@ -63,7 +63,7 @@ User = get_user_model()
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_picture']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 # class UserProfileSerializer(serializer.ModelSerializer):
 #     class Meta:
@@ -270,6 +270,7 @@ class ServiceRequestSerializer(serializers.ModelSerializer):
 
 class SearchFilterSerializer(serializers.Serializer):
     q = serializers.CharField(required=False, allow_blank=True)
+    search = serializers.CharField(required=False, allow_blank=True)  # Alias for q
     category = serializers.UUIDField(required=False)
     min_price = serializers.DecimalField(required=False, max_digits=10, decimal_places=2, min_value=0)
     max_price = serializers.DecimalField(required=False, max_digits=10, decimal_places=2, min_value=0)
@@ -279,6 +280,7 @@ class SearchFilterSerializer(serializers.Serializer):
         required=False,
         choices=['newest', 'oldest', 'price_low', 'price_high', 'rating']
     )
+    ordering = serializers.CharField(required=False)  # Alias for sort_by
     min_rating = serializers.IntegerField(required=False, min_value=1, max_value=5)
     verified_only = serializers.BooleanField(required=False, default=False)
     page = serializers.IntegerField(required=False, min_value=1, default=1)
