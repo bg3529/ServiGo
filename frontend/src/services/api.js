@@ -11,7 +11,55 @@ const api = axios.create({
     },
 });
 
-// ... (interceptors remain the same) ...
+// Request interceptor for adding the bearer token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response interceptor for handling token expiration
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        // If the error is 401 and not already retried
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const refreshToken = localStorage.getItem('refresh_token');
+                if (!refreshToken) throw new Error("No refresh token available");
+
+                // Use the base URL from the api instance
+                const refreshUrl = `${api.defaults.baseURL}authentication/token/refresh/`;
+                const response = await axios.post(refreshUrl, {
+                    refresh: refreshToken,
+                });
+
+                const { access } = response.data;
+                localStorage.setItem('access_token', access);
+
+                // Retry the original request with the new token
+                originalRequest.headers.Authorization = `Bearer ${access}`;
+                return api(originalRequest);
+            } catch (refreshError) {
+                console.error("Token refresh failed:", refreshError);
+                AuthService.logout();
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const AuthService = {
     login: async (email, password) => {
@@ -131,6 +179,17 @@ export const BookingService = {
     // Review a booking (if needed here, though ReviewService might be better)
     createReview: async (reviewData) => {
         const response = await api.post('services/reviews/', reviewData);
+        return response.data;
+    }
+};
+
+export const ProfileService = {
+    getProfile: async () => {
+        const response = await api.get('profile/me/');
+        return response.data;
+    },
+    updateProfile: async (profileData) => {
+        const response = await api.patch('profile/me/', profileData);
         return response.data;
     }
 };

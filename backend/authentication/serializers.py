@@ -1,4 +1,5 @@
 from .models import CustomUser
+from profilebackend.models import UserProfile
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -6,17 +7,25 @@ from django.utils.encoding import smart_str, force_str, smart_bytes, DjangoUnico
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='profile.full_name', read_only=True)
+    phone = serializers.CharField(source='profile.phone', read_only=True)
+    address = serializers.CharField(source='profile.address', read_only=True)
+    profile_image = serializers.ImageField(source='profile.profile_image', read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ("id","username","email", "is_provider")
+        fields = ("id", "username", "email", "is_provider", "full_name", "phone", "address", "profile_image")
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
+    full_name = serializers.CharField(required=False, allow_blank=True)
+    phone = serializers.CharField(required=False, allow_blank=True)
+    address = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model=CustomUser
-        fields = ("id","username","email","password1","password2", "is_provider")
+        fields = ("id","username","email","password1","password2", "is_provider", "full_name", "phone", "address")
         extra_kwargs={"password":{"write_only":True}}
 
 
@@ -31,8 +40,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validate_data):
         password=validate_data.pop("password1")
         validate_data.pop("password2")
+        
+        full_name = validate_data.pop("full_name", "")
+        phone = validate_data.pop("phone", "")
+        address = validate_data.pop("address", "")
 
-        return CustomUser.objects.create_user(password=password,**validate_data)
+        user = CustomUser.objects.create_user(password=password,**validate_data)
+        
+        # Create profile for the new user
+        UserProfile.objects.create(
+            user=user,
+            full_name=full_name,
+            phone=phone,
+            address=address
+        )
+        
+        return user
 
 
 class UserLoginSerializer(serializers.Serializer):

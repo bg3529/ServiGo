@@ -239,7 +239,7 @@
     box-shadow: 0 0 0 3px rgba(175, 244, 198, 0.3);
 }
 
-.auth-form button {
+/* .auth-form button {
     width: 100%;
     background-color: #AFF4C6;
     color: #064e3b;
@@ -250,7 +250,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s;
-}
+} */
 
 .auth-form button:hover {
     background-color: #8ed9a7;
@@ -264,7 +264,7 @@
 }
 
 .auth-footer-text a {
-    color: #064e3b;
+    color: blue;
     font-weight: 700;
     text-decoration: none;
 }

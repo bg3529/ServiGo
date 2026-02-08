@@ -45,6 +45,14 @@ function App() {
     setCurrentUser(null);
   };
 
+  const updateUser = (updatedData) => {
+    setCurrentUser(prev => {
+      const newUser = { ...prev, ...updatedData };
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+
   const addBooking = (newBooking) => {
     setBookings((prev) => [newBooking, ...prev]);
   };
@@ -83,7 +91,7 @@ function App() {
 
           <Route
             path="/profile"
-            element={currentUser ? <Profile currentUser={currentUser} /> : <Navigate to="/login" />}
+            element={currentUser ? <Profile currentUser={currentUser} onUpdateUser={updateUser} /> : <Navigate to="/login" />}
           />
 
           <Route
