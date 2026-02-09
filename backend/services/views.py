@@ -300,6 +300,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             )
         
         booking.status = 'cancelled'
+        booking.cancellation_reason = request.data.get('reason', '')
         booking.save()
         
         return Response({

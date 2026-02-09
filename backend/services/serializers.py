@@ -193,7 +193,7 @@ class BookingSerializer(serializers.ModelSerializer):
         model = Booking
         fields = [
             'id', 'customer', 'customer_name', 'service', 'service_details',
-            'booking_date', 'booking_time', 'duration', 'total_price',
+            'provider_name', 'booking_date', 'booking_time', 'duration', 'total_price',
             'notes', 'customer_address', 'contact_phone', 'status',
             'payment_status', 'created_at', 'updated_at'
         ]

@@ -49,11 +49,10 @@ const BecomeProvider = () => {
 
         try {
             // Call the API
-            await AuthService.becomeProvider(providerCardData);
+            const response = await AuthService.becomeProvider(providerCardData);
 
-            // Update local storage user data
-            const updatedUser = { ...currentUser, is_provider: true };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            // Update local storage user data with the response from backend
+            localStorage.setItem('user', JSON.stringify(response));
 
             toast.success("Congratulations! You are now a service provider.");
 

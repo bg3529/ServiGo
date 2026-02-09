@@ -13,6 +13,7 @@ from django.contrib.sites.shortcuts import get_current_site
 
 class UserRegistrationAPIView(GenericAPIView):
     permission_classes= (AllowAny,)
+    authentication_classes = []
     serializer_class = UserRegistrationSerializer
 
     def post(self, request, *args, **kwargs):
@@ -44,6 +45,7 @@ class UserRegistrationAPIView(GenericAPIView):
 
 class UserLoginAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
+    authentication_classes = []
     serializer_class = UserLoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -78,6 +80,7 @@ class UserLogoutAPIView(GenericAPIView):
 
 
 class RequestPasswordResetEmail(GenericAPIView):
+    authentication_classes = []
     serializer_class = ResetPasswordEmailRequestSerializer
 
     def post(self, request):
@@ -113,6 +116,7 @@ class RequestPasswordResetEmail(GenericAPIView):
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
 
 class PasswordTokenCheckAPI(GenericAPIView):
+    authentication_classes = []
     # This view is optionally used by frontend to verify token validity before showing the form
     def get(self, request, uidb64, token):
         try: 
@@ -128,6 +132,7 @@ class PasswordTokenCheckAPI(GenericAPIView):
             return Response({'error': 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class SetNewPasswordAPIView(GenericAPIView):
+    authentication_classes = []
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):
@@ -140,8 +145,56 @@ class BecomeProviderAPIView(GenericAPIView):
     serializer_class = CustomUserSerializer
 
     def post(self, request):
+        import re
+        from services.models import Service, ServiceCategory
+        
         user = request.user
+        data = request.data
+        
+        # 1. Update User status
         user.is_provider = True
         user.save()
+        
+        # 2. Extract and parse data for Service
+        category_name = data.get('category', 'Cleaning')
+        category, _ = ServiceCategory.objects.get_or_create(name=category_name)
+        
+        # Parse price (e.g., "$50/hr" -> 50.0)
+        price_str = str(data.get('price', '0'))
+        price_match = re.search(r'(\d+(?:\.\d+)?)', price_str)
+        price = float(price_match.group(1)) if price_match else 0.0
+        
+        # Determine price unit
+        price_unit = 'per hour'
+        if '/day' in price_str.lower():
+            price_unit = 'per day'
+        elif '/service' in price_str.lower():
+            price_unit = 'per service'
+        elif '/hr' in price_str.lower():
+            price_unit = 'per hour'
+            
+        description = data.get('description', '')
+        experience = data.get('experience', '')
+        if experience:
+            description = f"Experience: {experience}\n\n{description}"
+            
+        # Get location from profile if possible
+        location = "Remote"
+        if hasattr(user, 'profile') and user.profile.address:
+            location = user.profile.address
+
+        # 3. Create the Service listing
+        Service.objects.create(
+            provider=user,
+            category=category,
+            title=data.get('name', f"{user.username}'s Service"),
+            description=description,
+            price=price,
+            price_unit=price_unit,
+            location=location,
+            is_available=True,
+            is_verified=False
+        )
+        
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)

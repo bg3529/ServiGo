@@ -18,20 +18,12 @@ import HelpPage from "./Pages/Help/HelpPage";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import BecomeProvider from "./Pages/BecomeProvider/BecomeProvider";
 import ChatWidget from "./Components/ChatBot/ChatWidget";
+import Terms from "./Pages/Terms/Terms";
 import "./App.css";
 import { testConnection } from "./services/api";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
-
-  const [bookings, setBookings] = useState(() => {
-    const savedBookings = localStorage.getItem("userBookings");
-    return savedBookings ? JSON.parse(savedBookings) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem("userBookings", JSON.stringify(bookings));
-  }, [bookings]);
 
   const location = useLocation();
   const authPaths = ["/login", "/register", "/forgot-password", "/"];
@@ -51,14 +43,6 @@ function App() {
       localStorage.setItem('user', JSON.stringify(newUser));
       return newUser;
     });
-  };
-
-  const addBooking = (newBooking) => {
-    setBookings((prev) => [newBooking, ...prev]);
-  };
-
-  const cancelBooking = (id) => {
-    setBookings((prev) => prev.filter(booking => booking.id !== id));
   };
 
   return (
@@ -97,7 +81,7 @@ function App() {
           <Route
             path="/my-bookings"
             element={currentUser ? (
-              <MyBookings bookings={bookings} onCancel={cancelBooking} />
+              <MyBookings />
             ) : (
               <Navigate to="/login" />
             )}
@@ -107,11 +91,12 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/help" element={<HelpPage />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/become-provider" element={<BecomeProvider />} />
 
           <Route
             path="/providers/:subId"
-            element={<ProviderListPage onAddBooking={addBooking} />}
+            element={<ProviderListPage />}
           />
         </Routes>
       </main>

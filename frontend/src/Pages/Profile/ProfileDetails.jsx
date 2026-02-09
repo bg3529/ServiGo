@@ -170,7 +170,7 @@ const ProfileDetails = ({ currentUser, onUpdateUser }) => {
         </div>
 
         {/* Become Provider Button */}
-        {!currentUser?.isProvider && (
+        {!currentUser?.is_provider && (
           <button
             className="become-provider-btn"
             onClick={() => navigate('/become-provider')}
@@ -181,7 +181,7 @@ const ProfileDetails = ({ currentUser, onUpdateUser }) => {
         )}
 
         {/* Provider Dashboard Button */}
-        {currentUser?.isProvider && (
+        {currentUser?.is_provider && (
           <button
             className="provider-dashboard-btn"
             onClick={() => navigate('/dashboard')}

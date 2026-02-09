@@ -26,10 +26,11 @@ export default function MyBookings() {
   };
 
   const handleCancelBooking = async (id) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+    const reason = window.prompt("Are you sure you want to cancel this booking? Please provide a reason:");
+    if (reason === null) return; // User clicked Cancel
 
     try {
-      await BookingService.cancelBooking(id);
+      await BookingService.cancelBooking(id, reason);
       toast.success("Booking cancelled successfully");
       fetchBookings(); // Refresh list
     } catch (error) {
@@ -40,11 +41,13 @@ export default function MyBookings() {
 
   // Filter bookings based on active tab
   const filteredBookings = bookings.filter(booking => {
+    if (!booking?.status) return false;
     const isHistory = ['completed', 'cancelled', 'rejected'].includes(booking.status.toLowerCase());
     return activeTab === 'history' ? isHistory : !isHistory;
   });
 
   const getStatusIcon = (status) => {
+    if (!status) return <AlertCircle size={16} />;
     switch (status.toLowerCase()) {
       case 'confirmed': return <CheckCircle size={16} />;
       case 'pending': return <Clock3 size={16} />;
@@ -56,19 +59,27 @@ export default function MyBookings() {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+      });
+    } catch {
+      return 'N/A';
+    }
   };
 
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
-    // Basic check if it's HH:MM:SS
-    const [hours, minutes] = timeString.split(':');
-    const h = parseInt(hours, 10);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
-    return `${h12}:${minutes} ${ampm}`;
+    try {
+      // Basic check if it's HH:MM:SS
+      const [hours, minutes] = timeString.split(':');
+      const h = parseInt(hours, 10);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${minutes} ${ampm}`;
+    } catch {
+      return timeString || 'N/A';
+    }
   };
 
 
@@ -87,7 +98,7 @@ export default function MyBookings() {
           Active Bookings
           {!loading && (
             <span className="tab-count">
-              {bookings.filter(b => !['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
+              {bookings.filter(b => b.status && !['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
             </span>
           )}
         </button>
@@ -98,7 +109,7 @@ export default function MyBookings() {
           Booking History
           {!loading && (
             <span className="tab-count">
-              {bookings.filter(b => ['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
+              {bookings.filter(b => b.status && ['completed', 'cancelled', 'rejected'].includes(b.status.toLowerCase())).length}
             </span>
           )}
         </button>
@@ -147,7 +158,7 @@ export default function MyBookings() {
                   alt={booking.service_details?.title}
                   className="booking-image"
                 />
-                <div className={`status-badge ${booking.status.toLowerCase()}`}>
+                <div className={`status-badge ${booking.status?.toLowerCase() || 'pending'}`}>
                   {getStatusIcon(booking.status)}
                   <span>{booking.status}</span>
                 </div>
@@ -156,8 +167,8 @@ export default function MyBookings() {
               <div className="booking-content">
                 <div className="booking-main-info">
                   <h3 className="service-title">{booking.service_details?.title || 'Service Title'}</h3>
-                  <p className="provider-name">by {booking.service_details?.provider?.username || 'Provider'}</p>
-                  <p className="booking-price">${booking.total_price}</p>
+                  <p className="provider-name">by {booking.provider_name || booking.service_details?.provider?.username || 'Provider'}</p>
+                  <p className="booking-price">Rs. {booking.total_price}</p>
                 </div>
 
                 <div className="booking-details-grid">

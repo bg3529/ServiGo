@@ -8,7 +8,7 @@ import ProviderCard from '../../Components/ProviderCard/ProviderCard';
 import BookingModal from '../../Components/BookingForm/BookingModal';
 import './ProvidersListPage.css';
 
-export default function ProviderListPage({ onAddBooking }) {
+export default function ProviderListPage() {
   const { subId } = useParams();
   const navigate = useNavigate();
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -33,7 +33,7 @@ export default function ProviderListPage({ onAddBooking }) {
   return (
     <div className="list-container">
       <nav className="breadcrumb-nav">
-        <Link to="/home" className="breadcrumb-link"><Home size={14}/> Home</Link>
+        <Link to="/home" className="breadcrumb-link"><Home size={14} /> Home</Link>
         <ChevronRight size={14} className="sep" />
         <Link to={`/services/${parentCat?.id}`} className="breadcrumb-link">
           {parentCat?.name}
@@ -55,10 +55,10 @@ export default function ProviderListPage({ onAddBooking }) {
       <div className="grid-layout-pro">
         {filteredProviders.length > 0 ? (
           filteredProviders.map((pro) => (
-            <ProviderCard 
-              key={pro.id} 
-              provider={pro} 
-              onBook={() => handleOpenBooking(pro)} 
+            <ProviderCard
+              key={pro.id}
+              provider={pro}
+              onBook={() => handleOpenBooking(pro)}
             />
           ))
         ) : (
@@ -69,10 +69,9 @@ export default function ProviderListPage({ onAddBooking }) {
       </div>
 
       {isModalOpen && (
-        <BookingModal 
-          provider={selectedProvider} 
-          onClose={() => setIsModalOpen(false)} 
-          onConfirmBooking={onAddBooking}
+        <BookingModal
+          provider={selectedProvider}
+          onClose={() => setIsModalOpen(false)}
         />
       )}
     </div>

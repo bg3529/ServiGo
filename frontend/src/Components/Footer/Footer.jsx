@@ -44,7 +44,7 @@ export default function Footer() {
           <h3>Services</h3>
           <ul>
             <li><Link to="/services">All Services</Link></li>
-            <li><Link to="/services?category=Cleaning">Home Cleaning</Link></li>
+            <li><Link to="/services?category=2d170dc4-7876-4f72-aef9-b70c70ac36d7">Home Cleaning</Link></li>
             <li><Link to="/services?category=Plumbing">Plumbing</Link></li>
             <li><Link to="/services?category=Electrical">Electrical</Link></li>
             <li><Link to="/services?category=Moving">Moving & Packers</Link></li>

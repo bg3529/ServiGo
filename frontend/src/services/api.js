@@ -44,8 +44,11 @@ api.interceptors.response.use(
                     refresh: refreshToken,
                 });
 
-                const { access } = response.data;
+                const { access, refresh } = response.data;
                 localStorage.setItem('access_token', access);
+                if (refresh) {
+                    localStorage.setItem('refresh_token', refresh);
+                }
 
                 // Retry the original request with the new token
                 originalRequest.headers.Authorization = `Bearer ${access}`;
@@ -79,7 +82,7 @@ export const AuthService = {
         try {
             const refresh_token = localStorage.getItem('refresh_token');
             if (refresh_token) {
-                await api.post('authentication/logout/', { refresh_token });
+                await api.post('authentication/logout/', { refresh: refresh_token });
             }
         } catch (error) {
             console.error("Logout error", error);
@@ -171,8 +174,8 @@ export const BookingService = {
     },
 
     // Cancel a booking
-    cancelBooking: async (id) => {
-        const response = await api.post(`services/bookings/${id}/cancel/`);
+    cancelBooking: async (id, reason) => {
+        const response = await api.post(`services/bookings/${id}/cancel/`, { reason });
         return response.data;
     },
 

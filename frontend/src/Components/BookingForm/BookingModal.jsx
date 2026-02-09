@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookingService } from '../../services/api';
+import { toast } from 'react-hot-toast';
 import './BookingModal.css';
 
 export default function BookingModal({ provider, onClose, onConfirmBooking }) {
+  const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -47,9 +50,13 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
       const response = await BookingService.createBooking(payload);
 
       setIsSuccess(true);
+      toast.success("Booking request sent successfully!");
       if (onConfirmBooking) onConfirmBooking(response);
 
-      setTimeout(() => onClose(), 2500);
+      setTimeout(() => {
+        onClose();
+        navigate('/my-bookings');
+      }, 3000);
     } catch (err) {
       console.error("Booking failed", err);
       setError(err.response?.data?.detail || err.response?.data?.error || "Failed to create booking. Please try again.");
@@ -57,6 +64,18 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
       setLoading(false);
     }
   };
+
+  // Helper to parse price if it's a string like "Rs. 500/hr"
+  const getNumericPrice = (price) => {
+    if (typeof price === 'number') return price;
+    if (typeof price === 'string') {
+      const match = price.match(/(\d+(?:\.\d+)?)/);
+      return match ? parseFloat(match[1]) : 0;
+    }
+    return 0;
+  };
+
+  const numericPrice = getNumericPrice(provider.price);
 
   return (
     <div className="modal-overlay">
@@ -157,16 +176,16 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
               <div className="booking-summary-box">
                 <div className="summary-item">
                   <span>Rate</span>
-                  <span>Rs. {provider.price}/{provider.priceUnit}</span>
+                  <span>Rs. {numericPrice}/{provider.priceUnit || 'hr'}</span>
                 </div>
                 <div className="summary-total">
                   <span>Est. Total</span>
-                  <span>Rs. {provider.price * formData.duration}</span>
+                  <span>Rs. {numericPrice * formData.duration}</span>
                 </div>
               </div>
 
               <button type="submit" className="confirm-btn" disabled={loading}>
-                {loading ? 'Processing...' : 'Confirm Booking'}
+                {loading ? 'Processing...' : 'Confirm Book'}
               </button>
             </form>
           </>

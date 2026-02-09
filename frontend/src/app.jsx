@@ -13,8 +13,8 @@ import Profile from "./Pages/Profile/Profile";
 import SubCategoryPage from "./Pages/SubCategory/SubCategoryPage";
 import ProviderListPage from "./Pages/Providers/ProvidersListPage";
 import MyBookings from "./Pages/MyBookings/MyBookings";
-import ProviderRegistration from "./Pages/Profile/ProviderRegistration"; 
-import MyServices from "./Pages/MyServices.jsx"; 
+import ProviderRegistration from "./Pages/Profile/ProviderRegistration";
+import MyServices from "./Pages/MyServices.jsx";
 import AddServices from "./Pages/AddServices.jsx";
 import Reviews from "./Pages/Reviews.jsx";
 import ProviderDashboard from "./Pages/Dashboard.jsx";
@@ -37,23 +37,12 @@ function DashboardLayout() {
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
 
-  const [bookings, setBookings] = useState(() => {
-    const savedBookings = localStorage.getItem("userBookings");
-    return savedBookings ? JSON.parse(savedBookings) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem("userBookings", JSON.stringify(bookings));
-  }, [bookings]);
-
   const location = useLocation();
   const authPaths = ["/login", "/register", "/forgot-password", "/"];
   const isAuthPage = authPaths.includes(location.pathname);
 
   const handleLogin = (user) => setCurrentUser(user);
   const handleLogout = () => setCurrentUser(null);
-  const addBooking = (newBooking) => setBookings((prev) => [newBooking, ...prev]);
-  const cancelBooking = (id) => setBookings((prev) => prev.filter((b) => b.id !== id));
 
   return (
     <div className="app-wrapper">
@@ -81,11 +70,11 @@ function App() {
           <Route
             path="/my-bookings"
             element={
-              currentUser ? <MyBookings bookings={bookings} onCancel={cancelBooking} /> : <Navigate to="/login" />
+              currentUser ? <MyBookings /> : <Navigate to="/login" />
             }
           />
           <Route path="/services/:id" element={<SubCategoryPage />} />
-          <Route path="/providers/:subId" element={<ProviderListPage onAddBooking={addBooking} />} />
+          <Route path="/providers/:subId" element={<ProviderListPage />} />
 
           {/* Become Provider */}
           <Route
@@ -105,7 +94,7 @@ function App() {
           />
 
           {/* --- PROTECTED PROVIDER DASHBOARD ROUTES --- */}
-          <Route 
+          <Route
             element={currentUser?.isProvider ? <DashboardLayout /> : <Navigate to="/login" />}
           >
             <Route path="/dashboard" element={<ProviderDashboard currentUser={currentUser} />} />

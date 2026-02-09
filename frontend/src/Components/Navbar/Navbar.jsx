@@ -85,15 +85,10 @@ export default function Navbar() {
             <span>Help</span>
           </Link>
 
-          {!AuthService.getCurrentUser()?.is_provider ? (
+          {!AuthService.getCurrentUser()?.is_provider && (
             <Link to="/become-provider" className={`nav-item ${isActive('/become-provider')}`}>
               <Briefcase size={18} />
               <span>Become a Provider</span>
-            </Link>
-          ) : (
-            <Link to="/add-service" className={`nav-item ${isActive('/add-service')}`}>
-              <Plus size={18} />
-              <span>Add Service</span>
             </Link>
           )}
         </nav>
