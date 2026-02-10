@@ -10,7 +10,7 @@ export default function Home() {
 
   const handleCategoryClick = (id) => {
     // Navigates to the subcategory list for this specific category
-    navigate(`/services/${id}`);
+    // navigate(`/services/${id}`);
   };
 
   const handleSearch = (e) => {

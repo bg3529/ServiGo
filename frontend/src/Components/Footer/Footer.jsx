@@ -45,9 +45,9 @@ export default function Footer() {
           <ul>
             <li><Link to="/services">All Services</Link></li>
             <li><Link to="/services?category=2d170dc4-7876-4f72-aef9-b70c70ac36d7">Home Cleaning</Link></li>
-            <li><Link to="/services?category=Plumbing">Plumbing</Link></li>
-            <li><Link to="/services?category=Electrical">Electrical</Link></li>
-            <li><Link to="/services?category=Moving">Moving & Packers</Link></li>
+            <li><Link to="/services?category=08e1dfef-6a27-4fbd-996b-9939e753d7f2">Plumbing</Link></li>
+            <li><Link to="/services?category=f6924668-a88a-499a-8066-fb84e0123223">Electrical</Link></li>
+            {/* <li><Link to="/services?category=Moving">Moving & Packers</Link></li> */}
           </ul>
         </div>
 
@@ -61,10 +61,10 @@ export default function Footer() {
           </ul>
 
           <div className="social-links">
-            <a href="#" className="social-icon"><Facebook size={20} /></a>
+            {/* <a href="#" className="social-icon"><Facebook size={20} /></a>
             <a href="#" className="social-icon"><Twitter size={20} /></a>
             <a href="#" className="social-icon"><Instagram size={20} /></a>
-            <a href="#" className="social-icon"><Linkedin size={20} /></a>
+            <a href="#" className="social-icon"><Linkedin size={20} /></a> */}
           </div>
         </div>
       </div>

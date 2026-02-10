@@ -145,6 +145,16 @@ export const ServiceService = {
     getServiceById: async (id) => {
         const response = await api.get(`services/services/${id}/`);
         return response.data;
+    },
+
+    // Create a new service
+    createService: async (serviceData) => {
+        const response = await api.post('services/services/', serviceData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
     }
 };
 
@@ -192,7 +202,12 @@ export const ProfileService = {
         return response.data;
     },
     updateProfile: async (profileData) => {
-        const response = await api.patch('profile/me/', profileData);
+        const isFormData = profileData instanceof FormData;
+        const response = await api.patch('profile/me/', profileData, {
+            headers: {
+                'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+            },
+        });
         return response.data;
     }
 };

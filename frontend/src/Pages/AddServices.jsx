@@ -1,28 +1,33 @@
-import React, { useState } from 'react';
-import { Plus, X, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, X, Upload, Loader2 } from 'lucide-react';
+import { ServiceService } from '../services/api';
+import { toast } from 'react-hot-toast';
 
 const AddServices = ({ services, setServices }) => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
     subcategory: '',
     price: '',
     description: '',
-    image: null
+    imageFile: null
   });
 
-  const categories = [
-    'Student Housing',
-    'Tutoring',
-    'Pet Care',
-    'Health & Wellness',
-    'Tech Services',
-    'Automobiles/Transport',
-    'Personal Service',
-    'Home Improvement',
-    'Food & Meal'
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await ServiceService.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -34,37 +39,64 @@ const AddServices = ({ services, setServices }) => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData({ ...formData, imageFile: file });
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
+        setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleAddService = () => {
-    if (formData.name && formData.category && formData.price && formData.image) {
-      setServices([
-        ...services,
-        {
-          id: services.length + 1,
-          ...formData,
-          price: parseFloat(formData.price),
-          rating: 5,
-          reviewCount: 0,
-          location: 'At Home',
-          active: true
+  const handleAddService = async () => {
+    if (formData.name && formData.category && formData.price && formData.imageFile) {
+      setIsLoading(true);
+      try {
+        const data = new FormData();
+        data.append('title', formData.name);
+        data.append('category', formData.category);
+        data.append('price', formData.price);
+        data.append('description', formData.description);
+        data.append('price_unit', 'per service');
+
+        // Backend expects 'images' as a list of files in ServiceCreateSerializer
+        data.append('images', formData.imageFile);
+
+        const response = await ServiceService.createService(data);
+
+        if (setServices) {
+          setServices(prev => [...prev, response]);
         }
-      ]);
-      setFormData({
-        name: '',
-        category: '',
-        subcategory: '',
-        price: '',
-        description: '',
-        image: null
-      });
-      setShowAddForm(false);
+
+        toast.success('Service added successfully!');
+
+        // Reset form
+        setFormData({
+          name: '',
+          category: '',
+          subcategory: '',
+          price: '',
+          description: '',
+          imageFile: null
+        });
+        setImagePreview(null);
+        setShowAddForm(false);
+      } catch (error) {
+        console.error('Failed to add service:', error);
+        let errorMessage = 'Failed to add service';
+        if (error.response?.data) {
+          const data = error.response.data;
+          if (typeof data === 'object') {
+            errorMessage = Object.values(data)[0];
+            if (Array.isArray(errorMessage)) errorMessage = errorMessage[0];
+          }
+        }
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      toast.error('Please fill in all required fields and upload an image');
     }
   };
 
@@ -86,15 +118,18 @@ const AddServices = ({ services, setServices }) => {
               Service Image *
             </label>
             <div className="flex items-center gap-4">
-              {formData.image ? (
-                <div className="relative">
-                  <img 
-                    src={formData.image} 
-                    alt="Service" 
-                    className="w-full h-48 object-cover rounded-lg" 
+              {imagePreview ? (
+                <div className="relative w-full">
+                  <img
+                    src={imagePreview}
+                    alt="Service Preview"
+                    className="w-full h-48 object-cover rounded-lg"
                   />
                   <button
-                    onClick={() => setFormData({ ...formData, image: null })}
+                    onClick={() => {
+                      setFormData({ ...formData, imageFile: null });
+                      setImagePreview(null);
+                    }}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                   >
                     <X size={16} />
@@ -144,11 +179,10 @@ const AddServices = ({ services, setServices }) => {
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
           </div>
-
 
           {/* Price */}
           <div>
@@ -182,20 +216,17 @@ const AddServices = ({ services, setServices }) => {
           </div>
 
           {/* Preview Card */}
-          {formData.image && formData.name && (
+          {imagePreview && formData.name && (
             <div className="border-t pt-4 mt-4">
               <p className="text-sm font-medium text-gray-700 mb-3">Preview:</p>
               <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-sm">
-                <img 
-                  src={formData.image} 
-                  alt={formData.name} 
+                <img
+                  src={imagePreview}
+                  alt={formData.name}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-800 mb-1">{formData.name}</h3>
-                  {formData.subcategory && (
-                    <p className="text-xs text-gray-500 mb-2">{formData.subcategory}</p>
-                  )}
                   <div className="flex items-center gap-1 mb-2">
                     <span className="text-yellow-400">★</span>
                     <span className="text-sm font-medium">5</span>
@@ -218,13 +249,23 @@ const AddServices = ({ services, setServices }) => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-           <button
-            onClick={handleAddService}
-            className="w-full bg-emerald-500 text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
-          >
-            <Plus size={20} />
-            Add Service
-          </button>
+            <button
+              onClick={handleAddService}
+              disabled={isLoading}
+              className="w-full bg-emerald-500 text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Adding...</span>
+                </>
+              ) : (
+                <>
+                  <Plus size={20} />
+                  <span>Add Service</span>
+                </>
+              )}
+            </button>
             <button
               onClick={() => {
                 setShowAddForm(false);
@@ -234,10 +275,12 @@ const AddServices = ({ services, setServices }) => {
                   subcategory: '',
                   price: '',
                   description: '',
-                  image: null
+                  imageFile: null
                 });
+                setImagePreview(null);
               }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              disabled={isLoading}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
