@@ -19,11 +19,12 @@ import AboutUs from "./Pages/AboutUs/AboutUs";
 import BecomeProvider from "./Pages/BecomeProvider/BecomeProvider";
 import ChatWidget from "./Components/ChatBot/ChatWidget";
 import Terms from "./Pages/Terms/Terms";
+import NotFound from "./Pages/NotFound/NotFound";
 import "./App.css";
-import { testConnection } from "./services/api";
+import { testConnection, AuthService } from "./services/api";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => AuthService.getCurrentUser());
 
   const location = useLocation();
   const authPaths = ["/login", "/register", "/forgot-password", "/"];
@@ -98,6 +99,7 @@ function App() {
             path="/providers/:subId"
             element={<ProviderListPage />}
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 

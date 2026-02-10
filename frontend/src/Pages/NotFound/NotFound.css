@@ -1,0 +1,138 @@
+.notfound-container {
+    height: calc(100vh - 72px);
+    /* Subtract navbar height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9fafb;
+    padding: 20px;
+    text-align: center;
+}
+
+.notfound-content {
+    max-width: 500px;
+    width: 100%;
+}
+
+.notfound-illustration {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.floating-icon {
+    color: #2563eb;
+    animation: float 4s ease-in-out infinite;
+}
+
+.shadow {
+    width: 60px;
+    height: 8px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    margin-top: 15px;
+    animation: shadow 4s ease-in-out infinite;
+}
+
+.notfound-title {
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    margin: 0;
+    background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.notfound-subtitle {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin: 10px 0 15px;
+    font-weight: 700;
+}
+
+.notfound-text {
+    color: #6b7280;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.notfound-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes shadow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.05;
+    }
+}
+
+@media (max-width: 480px) {
+    .notfound-title {
+        font-size: 6rem;
+    }
+
+    .notfound-actions {
+        flex-direction: column;
+    }
+}
