@@ -20,10 +20,10 @@ export default function HelpPage() {
                         <p>Browse categories or search for a service, select a provider, and click "Book Now". You can manage bookings in your dashboard.</p>
                     </div>
 
-                    <div className="faq-item">
+                    {/* <div className="faq-item">
                         <h3>Is payment secure?</h3>
                         <p>Yes, all payments are processed securely. We currently support cash on delivery and digital wallets.</p>
-                    </div>
+                    </div> */}
 
                     <div className="faq-item">
                         <h3>How can I become a provider?</h3>
@@ -39,7 +39,7 @@ export default function HelpPage() {
 
             <section className="contact-support">
                 <h3>Still need help?</h3>
-                <p>Contact us at <a href="mailto:support@servigo.com">support@servigo.com</a></p>
+                <p>Contact us at <a href="mailto:support@servigo.com">mail@rajivkhanal.com.np</a></p>
             </section>
         </div>
     );

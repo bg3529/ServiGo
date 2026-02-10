@@ -13,26 +13,36 @@ export default function Navbar() {
   const [isNotiDropdownOpen, setIsNotiDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [upcomingBookings, setUpcomingBookings] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const notiDropdownRef = useRef(null);
 
-  // Fetch notifications
-  const fetchNotifications = async () => {
+  // Fetch notifications and upcoming bookings
+  const fetchData = async () => {
     if (!AuthService.getCurrentUser()) return;
     try {
-      const data = await NotificationService.getNotifications();
-      setNotifications(data);
-      setUnreadCount(data.filter(n => !n.is_read).length);
+      // Fetch regular notifications
+      const notiData = await NotificationService.getNotifications();
+      setNotifications(notiData);
+      setUnreadCount(notiData.filter(n => !n.is_read).length);
+
+      // Fetch upcoming bookings as "necessary" alerts
+      try {
+        const upcomingData = await BookingService.getUpcomingBookings();
+        setUpcomingBookings(upcomingData);
+      } catch (err) {
+        console.error("Failed to fetch upcoming bookings:", err);
+      }
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
+    fetchData();
     // Refresh every 60 seconds
-    const interval = setInterval(fetchNotifications, 60000);
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -176,27 +186,54 @@ export default function Navbar() {
                   )}
                 </div>
                 <div className="notification-list">
-                  {notifications.length > 0 ? (
-                    notifications.map(noti => (
-                      <div
-                        key={noti.id}
-                        className={`notification-item ${!noti.is_read ? 'unread' : ''}`}
-                        onClick={() => handleMarkAsRead(noti.id)}
-                      >
-                        <div className="notification-icon">
-                          <Bell size={18} />
+                  {/* Upcoming Necessary Alerts */}
+                  {upcomingBookings.length > 0 && (
+                    <div className="upcoming-alerts-section">
+                      <div className="section-divider">Upcoming Bookings</div>
+                      {upcomingBookings.map(booking => (
+                        <div key={booking.id} className="notification-item upcoming" onClick={() => navigate(`/my-bookings`)}>
+                          <div className="notification-icon upcoming">
+                            <Calendar size={18} />
+                          </div>
+                          <div className="notification-info">
+                            <div className="notification-title">Reminder: {booking.service_details?.title}</div>
+                            <div className="notification-message">
+                              Scheduled for {new Date(booking.booking_date).toLocaleDateString()} at {new Date(booking.booking_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div className="notification-status-badge">{booking.status}</div>
+                          </div>
                         </div>
-                        <div className="notification-info">
-                          <div className="notification-title">{noti.title}</div>
-                          <div className="notification-message">{noti.message}</div>
-                          <div className="notification-time">{formatTime(noti.created_at)}</div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="no-notifications">
-                      No notifications yet
+                      ))}
                     </div>
+                  )}
+
+                  {/* Regular Notifications */}
+                  {notifications.length > 0 ? (
+                    <>
+                      {upcomingBookings.length > 0 && <div className="section-divider">Older Notifications</div>}
+                      {notifications.map(noti => (
+                        <div
+                          key={noti.id}
+                          className={`notification-item ${!noti.is_read ? 'unread' : ''}`}
+                          onClick={() => handleMarkAsRead(noti.id)}
+                        >
+                          <div className="notification-icon">
+                            <Bell size={18} />
+                          </div>
+                          <div className="notification-info">
+                            <div className="notification-title">{noti.title}</div>
+                            <div className="notification-message">{noti.message}</div>
+                            <div className="notification-time">{formatTime(noti.created_at)}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    upcomingBookings.length === 0 && (
+                      <div className="no-notifications">
+                        No notifications yet
+                      </div>
+                    )
                   )}
                 </div>
               </div>
