@@ -154,9 +154,7 @@ export default function ServicesPage() {
     const handleBooking = (service) => {
         const formattedProvider = {
             ...service,
-            name: service.provider?.full_name ||
-                (service.provider?.first_name ? `${service.provider.first_name} ${service.provider.last_name}` : service.provider?.username) ||
-                'Service Provider',
+            name: service.provider?.full_name || 'Service Provider',
             image: service.primary_image || (service.images && service.images[0]?.image) || 'https://via.placeholder.com/300',
             rating: service.rating || 5.0,
             reviewCount: service.total_reviews || 0,
@@ -338,9 +336,7 @@ export default function ServicesPage() {
                                 key={service.id}
                                 provider={{
                                     ...service,
-                                    name: service.provider?.first_name
-                                        ? `${service.provider.first_name} ${service.provider.last_name}`
-                                        : service.provider?.username || 'Service Provider',
+                                    name: service.provider?.full_name || 'Service Provider',
                                     image: service.primary_image || (service.images && service.images[0]?.image) || 'https://via.placeholder.com/300',
                                     rating: service.rating || 5.0,
                                     reviewCount: service.total_reviews || 0,

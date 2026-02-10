@@ -93,8 +93,19 @@ export default function BookingModal({ provider, onClose, onConfirmBooking }) {
           <>
             <div className="modal-header">
               <span className="modal-badge">{provider.categoryName || "Service"}</span>
-              <h2>Book Service</h2>
-              <p>with <strong>{provider.name}</strong></p>
+              <div className="provider-profile-header">
+                {provider.provider?.profile_image && (
+                  <img
+                    src={provider.provider.profile_image}
+                    alt={provider.provider.full_name}
+                    className="provider-header-avatar"
+                  />
+                )}
+                <div className="provider-header-info">
+                  <h2>Book Service</h2>
+                  <p>with <strong>{provider.name}</strong></p>
+                </div>
+              </div>
             </div>
 
             {error && <div className="error-banner">{error}</div>}

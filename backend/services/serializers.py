@@ -61,9 +61,28 @@ import uuid
 User = get_user_model()
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'full_name']
+
+    def get_profile_image(self, obj):
+        try:
+            if hasattr(obj, 'profile') and obj.profile.profile_image:
+                request = self.context.get('request')
+                if request:
+                    return request.build_absolute_uri(obj.profile.profile_image.url)
+                return obj.profile.profile_image.url
+        except Exception:
+            pass
+        return None
+
+    def get_full_name(self, obj):
+        if hasattr(obj, 'profile') and obj.profile.full_name:
+            return obj.profile.full_name
+        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
 # class UserProfileSerializer(serializer.ModelSerializer):
 #     class Meta:
@@ -102,6 +121,7 @@ class ServiceListSerializer(serializers.ModelSerializer):
     category = ServiceCategorySerializer(read_only=True)
     provider = UserProfileSerializer(read_only=True)
     primary_image = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
     tags = ServiceTagSerializer(many=True, read_only=True)
     
     class Meta:
@@ -109,9 +129,12 @@ class ServiceListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'price', 'price_unit',
             'location', 'category', 'provider', 'rating', 'total_reviews',
-            'is_available', 'is_verified', 'primary_image', 'tags',
+            'is_available', 'is_verified', 'primary_image', 'image', 'tags',
             'created_at'
         ]
+    
+    def get_image(self, obj):
+        return self.get_primary_image(obj)
     
     def get_primary_image(self, obj):
         primary_image = obj.images.filter(is_primary=True).first()
@@ -149,7 +172,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'category', 'title', 'description', 'price', 'price_unit',
+            'id', 'category', 'title', 'description', 'price', 'price_unit',
             'location', 'latitude', 'longitude', 'images', 'tags',
             'availability_slots'
         ]
@@ -160,8 +183,10 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
         slots_data = validated_data.pop('availability_slots', [])
         
         # Create service
+        # Pop provider if it's already in validated_data to avoid multiple values error
+        provider = validated_data.pop('provider', self.context['request'].user)
         service = Service.objects.create(
-            provider=self.context['request'].user,
+            provider=provider,
             **validated_data
         )
         

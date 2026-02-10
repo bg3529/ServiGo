@@ -124,7 +124,111 @@ class ServiceViewSet(viewsets.ModelViewSet):
             'is_available': service.is_available,
             'message': f'Service availability set to {service.is_available}'
         })
-    
+
+    @action(detail=True, methods=['post'])
+    def upload_image(self, request, pk=None):
+        """
+        Upload an image for a service
+        """
+        print(f"DEBUG: upload_image called for pk={pk}")
+        service = self.get_object()
+        print(f"DEBUG: service={service}")
+        if service.provider != request.user:
+            return Response(
+                {'error': 'You do not have permission to add images to this service'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        image_file = request.FILES.get('image')
+        print(f"DEBUG: image_file={image_file}")
+        if not image_file:
+            return Response(
+                {'error': 'No image provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        is_primary = request.data.get('is_primary', 'false').lower() == 'true'
+        print(f"DEBUG: is_primary={is_primary}")
+        
+        # If this is the first image, make it primary
+        if not service.images.exists():
+            is_primary = True
+        elif is_primary:
+            # If new image is primary, unset previous primary image
+            service.images.filter(is_primary=True).update(is_primary=False)
+            
+        print("DEBUG: Creating ServiceImage...")
+        new_image = ServiceImage.objects.create(
+            service=service,
+            image=image_file,
+            is_primary=is_primary
+        )
+        print(f"DEBUG: new_image={new_image}")
+        
+        serializer = ServiceImageSerializer(new_image, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], url_path='delete_image/(?P<image_id>[^/.]+)')
+    def delete_image(self, request, pk=None, image_id=None):
+        """
+        Delete an image from a service
+        """
+        service = self.get_object()
+        if service.provider != request.user:
+            return Response(
+                {'error': 'You do not have permission to delete images from this service'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            image = service.images.get(id=image_id)
+        except ServiceImage.DoesNotExist:
+            return Response(
+                {'error': 'Image not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        was_primary = image.is_primary
+        image.delete()
+        
+        # If deleted image was primary, set another one as primary if exists
+        if was_primary:
+            next_image = service.images.first()
+            if next_image:
+                next_image.is_primary = True
+                next_image.save()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['patch'], url_path='set_primary_image/(?P<image_id>[^/.]+)')
+    def set_primary_image(self, request, pk=None, image_id=None):
+        """
+        Set an image as primary for a service
+        """
+        service = self.get_object()
+        if service.provider != request.user:
+            return Response(
+                {'error': 'You do not have permission to modify this service'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            image = service.images.get(id=image_id)
+        except ServiceImage.DoesNotExist:
+            return Response(
+                {'error': 'Image not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Unset previous primary
+        service.images.filter(is_primary=True).update(is_primary=False)
+        
+        # Set new primary
+        image.is_primary = True
+        image.save()
+        
+        return Response({'message': 'Image set as primary'}, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['get'])
     def search(self, request):
         """

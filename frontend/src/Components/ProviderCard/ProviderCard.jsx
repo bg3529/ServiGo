@@ -20,7 +20,16 @@ export default function ProviderCard({ provider, onBook }) {
 
       <div className="pro-content-v">
         <div className="pro-header">
-          <h3 className="pro-title-v">{provider.name}</h3>
+          <div className="pro-provider-info">
+            {provider.provider?.profile_image && (
+              <img
+                src={provider.provider.profile_image}
+                alt={provider.provider.full_name}
+                className="provider-avatar-mini"
+              />
+            )}
+            <h3 className="pro-title-v">{provider.name}</h3>
+          </div>
           {provider.is_available ? (
             <span className="status-dot online" title="Available Now"></span>
           ) : (
