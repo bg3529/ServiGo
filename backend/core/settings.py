@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_filters',
     'services',
     'profilebackend',
+    'notification',
 ]
 
 MIDDLEWARE = [

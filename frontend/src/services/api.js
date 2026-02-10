@@ -212,6 +212,26 @@ export const ProfileService = {
     }
 };
 
+export const NotificationService = {
+    // Get all notifications for current user
+    getNotifications: async () => {
+        const response = await api.get('notifications/');
+        return response.data;
+    },
+
+    // Mark a specific notification as read
+    markAsRead: async (id) => {
+        const response = await api.patch(`notifications/${id}/read/`);
+        return response.data;
+    },
+
+    // Mark all notifications as read
+    markAllAsRead: async () => {
+        const response = await api.post('notifications/mark-all-read/');
+        return response.data;
+    }
+};
+
 // Test connection function
 export const testConnection = async () => {
     try {

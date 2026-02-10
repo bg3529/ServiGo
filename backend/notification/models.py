@@ -1,5 +1,5 @@
 from django.db import models
-from authentication.models importKW CustomUser
+from authentication.models import CustomUser
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = (

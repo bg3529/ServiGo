@@ -27,6 +27,7 @@ urlpatterns = [
     path('authentication/',include("authentication.urls")),
     path('services/',include("services.urls")),
     path('profile/', include("profilebackend.urls")),
+    path('notifications/', include("notification.urls")),
 ]
 
 if settings.DEBUG:

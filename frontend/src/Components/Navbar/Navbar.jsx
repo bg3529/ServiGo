@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Calendar, LogOut, Search, HelpCircle, Menu, X, ChevronDown, Bell, LayoutDashboard, Briefcase, Info, Plus } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { AuthService } from '../../services/api';
+import { AuthService, NotificationService } from '../../services/api';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -10,8 +10,52 @@ export default function Navbar() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isNotiDropdownOpen, setIsNotiDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+  const notiDropdownRef = useRef(null);
+
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    if (!AuthService.getCurrentUser()) return;
+    try {
+      const data = await NotificationService.getNotifications();
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.is_read).length);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await NotificationService.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+      toast.success("All notifications marked as read");
+    } catch (error) {
+      toast.error("Failed to mark notifications as read");
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await NotificationService.markAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Failed to mark notification as read", error);
+    }
+  };
 
   // Handle scroll effect
   useEffect(() => {
@@ -28,6 +72,9 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsProfileDropdownOpen(false);
       }
+      if (notiDropdownRef.current && !notiDropdownRef.current.contains(event.target)) {
+        setIsNotiDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -36,6 +83,8 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsNotiDropdownOpen(false);
+    setIsProfileDropdownOpen(false);
   }, [location]);
 
   const handleLogout = () => {
@@ -45,6 +94,17 @@ export default function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000 / 60); // minutes
+
+    if (diff < 1) return 'Just now';
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <header className={`navbar-container ${scrolled ? 'scrolled' : ''}`}>
@@ -95,11 +155,53 @@ export default function Navbar() {
 
         {/* Right Side Actions */}
         <div className="nav-actions">
-          {/* Notification Bell (Placeholder) */}
-          <button className="icon-btn">
-            <Bell size={20} />
-            <span className="notification-dot"></span>
-          </button>
+          {/* Notification Bell */}
+          <div className="profile-dropdown-container" ref={notiDropdownRef}>
+            <button
+              className="icon-btn"
+              onClick={() => setIsNotiDropdownOpen(!isNotiDropdownOpen)}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && <span className="notification-dot"></span>}
+            </button>
+
+            {isNotiDropdownOpen && (
+              <div className="dropdown-menu notifications-dropdown">
+                <div className="notification-header">
+                  <h3>Notifications</h3>
+                  {unreadCount > 0 && (
+                    <button onClick={handleMarkAllRead} className="mark-all-btn">
+                      Mark all as read
+                    </button>
+                  )}
+                </div>
+                <div className="notification-list">
+                  {notifications.length > 0 ? (
+                    notifications.map(noti => (
+                      <div
+                        key={noti.id}
+                        className={`notification-item ${!noti.is_read ? 'unread' : ''}`}
+                        onClick={() => handleMarkAsRead(noti.id)}
+                      >
+                        <div className="notification-icon">
+                          <Bell size={18} />
+                        </div>
+                        <div className="notification-info">
+                          <div className="notification-title">{noti.title}</div>
+                          <div className="notification-message">{noti.message}</div>
+                          <div className="notification-time">{formatTime(noti.created_at)}</div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-notifications">
+                      No notifications yet
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* User Profile Dropdown */}
           <div className="profile-dropdown-container" ref={dropdownRef}>
