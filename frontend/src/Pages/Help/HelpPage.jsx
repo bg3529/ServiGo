@@ -6,9 +6,9 @@ export default function HelpPage() {
         <div className="help-container">
             <div className="help-header">
                 <h1>How can we help you?</h1>
-                <div className="search-help">
+                {/* <div className="search-help">
                     <input type="text" placeholder="Search for answers..." />
-                </div>
+                </div> */}
             </div>
 
             <section className="faq-section">
