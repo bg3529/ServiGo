@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, AlertCircle, CheckCircle, XCircle, Clock3, User, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, AlertCircle, CheckCircle, XCircle, Clock3, User, ChevronRight, AlertTriangle, X } from 'lucide-react';
 import { BookingService } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import './MyBookings.css';
@@ -8,6 +8,12 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('active'); // 'active' | 'history'
+
+  // Cancellation Modal State
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelingId, setCancelingId] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [submittingCancel, setSubmittingCancel] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -25,17 +31,29 @@ export default function MyBookings() {
     }
   };
 
-  const handleCancelBooking = async (id) => {
-    const reason = window.prompt("Are you sure you want to cancel this booking? Please provide a reason:");
-    if (reason === null) return;
+  const handleCancelClick = (id) => {
+    setCancelingId(id);
+    setCancelReason('');
+    setShowCancelModal(true);
+  };
 
+  const confirmCancel = async () => {
+    if (!cancelReason.trim()) {
+      toast.error("Please provide a reason for cancellation");
+      return;
+    }
+
+    setSubmittingCancel(true);
     try {
-      await BookingService.cancelBooking(id, reason);
+      await BookingService.cancelBooking(cancelingId, cancelReason);
       toast.success("Booking cancelled successfully");
+      setShowCancelModal(false);
       fetchBookings();
     } catch (error) {
       console.error("Failed to cancel booking", error);
       toast.error(error.response?.data?.error || "Failed to cancel booking");
+    } finally {
+      setSubmittingCancel(false);
     }
   };
 
@@ -190,7 +208,7 @@ export default function MyBookings() {
                   {activeTab === 'active' && ['pending', 'confirmed'].includes(booking.status.toLowerCase()) && (
                     <button
                       className="cancel-btn"
-                      onClick={() => handleCancelBooking(booking.id)}
+                      onClick={() => handleCancelClick(booking.id)}
                     >
                       Cancel
                     </button>
@@ -211,6 +229,53 @@ export default function MyBookings() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Custom Cancellation Modal */}
+      {showCancelModal && (
+        <div className="modal-overlay">
+          <div className="modal-content cancel-modal">
+            <button className="close-x" onClick={() => setShowCancelModal(false)}>
+              <X size={20} />
+            </button>
+            <div className="modal-inner">
+              <div className="cancel-header">
+                <div className="warning-icon-box">
+                  <AlertTriangle size={32} />
+                </div>
+                <h2>Cancel Booking?</h2>
+                <p>Please let us know why you need to cancel this service.</p>
+              </div>
+
+              <div className="form-group">
+                <label>Reason for Cancellation</label>
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="e.g., Change of plans, emergency, etc."
+                  rows="4"
+                  className="cancel-textarea"
+                ></textarea>
+              </div>
+
+              <div className="cancel-actions">
+                <button
+                  className="confirm-cancel-btn"
+                  onClick={confirmCancel}
+                  disabled={submittingCancel}
+                >
+                  {submittingCancel ? 'Cancelling...' : 'Yes, Cancel Booking'}
+                </button>
+                <button
+                  className="keep-booking-btn"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  Keep Booking
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
