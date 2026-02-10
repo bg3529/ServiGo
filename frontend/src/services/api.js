@@ -97,8 +97,16 @@ export const AuthService = {
         const userStr = localStorage.getItem('user');
         return userStr ? JSON.parse(userStr) : null;
     },
-    requestPasswordReset: async (email) => {
-        const response = await api.post('authentication/request-reset-email/', { email });
+    requestPasswordReset: async (email, security_answer) => {
+        const response = await api.post('authentication/request-reset-email/', { email, security_answer });
+        return response.data;
+    },
+    getSecurityQuestion: async (email) => {
+        const response = await api.post('authentication/get-security-question/', { email });
+        return response.data;
+    },
+    verifySecurityAnswer: async (email, security_answer) => {
+        const response = await api.post('authentication/verify-security-answer/', { email, security_answer });
         return response.data;
     },
     confirmPasswordReset: async (uidb64, token, password) => {

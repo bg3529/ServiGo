@@ -19,13 +19,15 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    full_name = serializers.CharField(required=False, allow_blank=True)
-    phone = serializers.CharField(required=False, allow_blank=True)
-    address = serializers.CharField(required=False, allow_blank=True)
+    full_name = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    phone = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    address = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    security_question = serializers.ChoiceField(choices=UserProfile.SECURITY_QUESTIONS, required=True, write_only=True)
+    security_answer = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model=CustomUser
-        fields = ("id","username","email","password1","password2", "is_provider", "full_name", "phone", "address")
+        fields = ("id","username","email","password1","password2", "is_provider", "full_name", "phone", "address", "security_question", "security_answer")
         extra_kwargs={"password":{"write_only":True}}
 
 
@@ -44,6 +46,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         full_name = validate_data.pop("full_name", "")
         phone = validate_data.pop("phone", "")
         address = validate_data.pop("address", "")
+        security_question = validate_data.pop("security_question", "")
+        security_answer = validate_data.pop("security_answer", "")
 
         user = CustomUser.objects.create_user(password=password,**validate_data)
         
@@ -52,7 +56,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             user=user,
             full_name=full_name,
             phone=phone,
-            address=address
+            address=address,
+            security_question=security_question,
+            security_answer=security_answer
         )
         
         return user
@@ -86,20 +92,21 @@ class SetNewPasswordSerializer(serializers.Serializer):
         fields = ['password', 'token', 'uidb64']
 
     def validate(self, attrs):
-        try:
-            password = attrs.get('password')
-            token = attrs.get('token')
-            uidb64 = attrs.get('uidb64')
+        password = attrs.get('password')
+        token = attrs.get('token')
+        uidb64 = attrs.get('uidb64')
 
+        try:
             id = force_str(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(id=id)
-            if not PasswordResetTokenGenerator().check_token(user, token):
-                raise serializers.ValidationError('The reset link is invalid', 401)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            raise serializers.ValidationError({'message': 'Invalid reset link or user not found'})
 
-            user.set_password(password)
-            user.save()
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            raise serializers.ValidationError({'message': 'The reset link is invalid or has expired'})
 
-            return (user)
-        except Exception as e:
-            raise serializers.ValidationError('The reset link is invalid', 401)
+        user.set_password(password)
+        user.save()
+
+        return user
         

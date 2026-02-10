@@ -79,8 +79,60 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class GetSecurityQuestionAPIView(GenericAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = CustomUser.objects.get(email=email)
+            if hasattr(user, 'profile') and user.profile.security_question:
+                question_key = user.profile.security_question
+                # Find the human-readable question
+                question_text = next((q[1] for q in UserProfile.SECURITY_QUESTIONS if q[0] == question_key), "Security Question Not Found")
+                return Response({'question': question_text}, status=status.HTTP_200_OK)
+            return Response({'error': 'Security question not set for this user'}, status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User with this email does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+class VerifySecurityAnswerAPIView(GenericAPIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        security_answer = request.data.get('security_answer')
+
+        if not email or not security_answer:
+            return Response({'error': 'Email and security answer are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = CustomUser.objects.get(email=email)
+            stored_answer = getattr(user.profile, 'security_answer', None) if hasattr(user, 'profile') else None
+            
+            if not stored_answer:
+                return Response({'error': 'Security answer not set for this user'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if stored_answer.lower() == security_answer.lower():
+                uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+                token = PasswordResetTokenGenerator().make_token(user)
+                return Response({
+                    'success': True,
+                    'uidb64': uidb64,
+                    'token': token
+                }, status=status.HTTP_200_OK)
+            
+            return Response({'error': 'Incorrect security answer'}, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class RequestPasswordResetEmail(GenericAPIView):
     authentication_classes = []
+    permission_classes = [AllowAny]
     serializer_class = ResetPasswordEmailRequestSerializer
 
     def post(self, request):
@@ -90,8 +142,19 @@ class RequestPasswordResetEmail(GenericAPIView):
         # Check if email exists
         if serializer.is_valid(raise_exception=True):
             email = request.data['email']
+            security_answer = request.data.get('security_answer')
+
+            if not security_answer:
+                return Response({'error': 'Security answer is required'}, status=status.HTTP_400_BAD_REQUEST)
+
             if CustomUser.objects.filter(email=email).exists():
                 user = CustomUser.objects.get(email=email)
+                
+                # Verify security answer
+                stored_answer = getattr(user.profile, 'security_answer', None) if hasattr(user, 'profile') else None
+                if not stored_answer or stored_answer.lower() != security_answer.lower():
+                    return Response({'error': 'Incorrect security answer'}, status=status.HTTP_400_BAD_REQUEST)
+
                 uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
                 token = PasswordResetTokenGenerator().make_token(user)
                 
@@ -117,6 +180,7 @@ class RequestPasswordResetEmail(GenericAPIView):
 
 class PasswordTokenCheckAPI(GenericAPIView):
     authentication_classes = []
+    permission_classes = [AllowAny]
     # This view is optionally used by frontend to verify token validity before showing the form
     def get(self, request, uidb64, token):
         try: 
@@ -133,6 +197,7 @@ class PasswordTokenCheckAPI(GenericAPIView):
 
 class SetNewPasswordAPIView(GenericAPIView):
     authentication_classes = []
+    permission_classes = [AllowAny]
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):

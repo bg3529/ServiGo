@@ -11,7 +11,9 @@ function RegisterForm() {
     password: "",
     full_name: "",
     phone: "",
-    address: ""
+    address: "",
+    security_question: "",
+    security_answer: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,6 +25,12 @@ function RegisterForm() {
   async function handleSubmit(event) {
     event.preventDefault();
     setIsLoading(true);
+
+    if (!formData.security_question) {
+      toast.error("Please select a security question");
+      setIsLoading(false);
+      return;
+    }
 
     // Backend expects password1 and password2
     const payload = {
@@ -39,11 +47,25 @@ function RegisterForm() {
       navigate("/login");
     } catch (err) {
       console.error("Registration failed", err);
-      const msg = err.response?.data?.email?.[0] ||
-        err.response?.data?.username?.[0] ||
-        err.response?.data?.password1?.[0] || // Check password1 error
-        "Registration failed. Please try again.";
-      toast.error(msg);
+
+      const errorData = err.response?.data;
+      if (errorData && typeof errorData === 'object') {
+        // Extract all error messages
+        const errorMessages = Object.entries(errorData).map(([key, value]) => {
+          const fieldName = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+          const message = Array.isArray(value) ? value[0] : value;
+          return `${fieldName}: ${message}`;
+        });
+
+        if (errorMessages.length > 0) {
+          toast.error(errorMessages[0]); // Show the first error in a toast
+          console.log("Full error report:", errorMessages.join(", "));
+        } else {
+          toast.error("Registration failed. Please check your information.");
+        }
+      } else {
+        toast.error("An unexpected error occurred. Please try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -97,6 +119,27 @@ function RegisterForm() {
             placeholder="Address"
             value={formData.address}
             onChange={handleChange}
+          />
+          <select
+            name="security_question"
+            value={formData.security_question}
+            onChange={handleChange}
+            required
+          >
+            <option value="" disabled>Select a Security Question</option>
+            <option value="mother_maiden">What is your mother's maiden name?</option>
+            <option value="first_pet">What was the name of your first pet?</option>
+            <option value="first_school">What was the name of your first school?</option>
+            <option value="birth_city">In what city were you born?</option>
+            <option value="favorite_book">What is your favorite book?</option>
+          </select>
+          <input
+            type="text"
+            name="security_answer"
+            placeholder="Answer to Security Question"
+            value={formData.security_answer}
+            onChange={handleChange}
+            required
           />
           <input
             type="password"
