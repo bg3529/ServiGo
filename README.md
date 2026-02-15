@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 3rd Semester Project of Kathmandu University Computer Engineering Student group
 
 ## Project Developers 
